@@ -10,21 +10,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $messages = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
+    $user = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
     // $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
     // $stmt->bindValue(':username', $username);
     // $result = $stmt->execute();
     // $user = $result->fetchArray( );
 
-    if ($user && password_verify($password, $user['password'])) {
+    if (password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
-        header('Location: main.php');
+        header('Location: main.php'); 
         exit();
     } else {
         $message = 'Ungültiger Benutzername oder Passwort';
     }
 }
-?>
+?> 
 
 <!DOCTYPE html>
 <html lang="de">
