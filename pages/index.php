@@ -1,9 +1,32 @@
 <?php
+
+require_once "db.php";
+
 session_start();
 
+// Überprüfe, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
     exit();
+}
+
+// Hole die userid des aktuellen Benutzers
+$username = $_SESSION['username'];
+$stmt = db()->prepare('SELECT id FROM users WHERE username = :username');
+$stmt->bindValue(':username', $username);
+$result = $stmt->execute();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$userid = $user['id'];
+
+// Hole alle Chats, die zur aktuellen userid gehören
+$chat_stmt = db()->prepare('SELECT chatid FROM chats WHERE userid = :userid');
+$chat_stmt->bindValue(':userid', $userid);
+$chat_result = $chat_stmt->execute();
+
+$chats = [];
+
+while ($chat = $chat_result->fetch(PDO::FETCH_ASSOC)) {
+    $chats[] = $chat['chatid'];
 }
 ?>
 
@@ -22,7 +45,7 @@ if (!isset($_SESSION['username'])) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
+                        <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
                     </li>
                 </ul>
             </div>
@@ -34,8 +57,22 @@ if (!isset($_SESSION['username'])) {
             <div class="col-md-6">
                 <h2 class="text-center">Willkommen, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
                 <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
-                <div class="d-grid gap-2">
-                    <a href="logout.php" class="btn btn-danger btn-lg">Logout</a>
+                
+                <h3 class="text-center mt-4">Deine Chats</h3>
+                <div class="chats-container mt-3 p-3 border border-secondary rounded">
+                    <?php if (empty($chats)): ?>
+                        <p class="text-center">Keine Chats vorhanden.</p>
+                    <?php else: ?>
+                        <?php foreach ($chats as $chatid): ?>
+                            <div class="chat-id bg-light p-2 mb-2 text-center">
+                                <?php echo htmlspecialchars($chatid); ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
                 </div>
             </div>
         </div>

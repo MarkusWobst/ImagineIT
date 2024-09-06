@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = 'Ungültiger Benutzername oder Passwort';
     }
 }
-?> 
+?>
 
 <!DOCTYPE html>
 <html lang="de">
