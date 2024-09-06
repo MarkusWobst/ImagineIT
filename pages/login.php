@@ -10,13 +10,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Prepare and execute the statement to fetch user data
-    $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
+    $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
     $stmt->bindValue(':username', $username);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
+        $_SESSION['userid'] = $user['id'];
         header('Location: index.php');
         exit();
     } else {

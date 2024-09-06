@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
 
         // Überprüfe, ob der Benutzername bereits existiert
-        $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
+        $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
         $stmt->bindValue(':username', $username);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);

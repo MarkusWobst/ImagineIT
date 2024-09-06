@@ -10,16 +10,11 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Hole die userid des aktuellen Benutzers
 $username = $_SESSION['username'];
-$stmt = db()->prepare('SELECT id FROM users WHERE username = :username');
-$stmt->bindValue(':username', $username);
-$result = $stmt->execute();
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-$userid = $user['id'];
+$userid = $_SESSION['userid'];
 
 // Hole alle Chats, die zur aktuellen userid gehören
-$chat_stmt = db()->prepare('SELECT chatid FROM chats WHERE userid = :userid');
+$chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
 $chat_result = $chat_stmt->execute();
 
