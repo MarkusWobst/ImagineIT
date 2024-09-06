@@ -1,4 +1,7 @@
 <?php
+
+require_once "db.php";
+
 session_start();
 $message = '';
 
@@ -7,10 +10,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
-    $stmt->bindValue(':username', $username);
-    $result = $stmt->execute();
-    $user = $result->fetchArray( );
+    $messages = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
+    // $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
+    // $stmt->bindValue(':username', $username);
+    // $result = $stmt->execute();
+    // $user = $result->fetchArray( );
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
