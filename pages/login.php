@@ -6,19 +6,20 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    static $db = new PDO('sqlite:../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $user = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
-    // $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
-    // $stmt->bindValue(':username', $username);
+    // $user = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
+    $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
+    $stmt->bindValue(':username', $username);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
     // $result = $stmt->execute();
-    // $user = $result->fetchArray( );
+    // $user = $result->fetchArray();
 
     if (password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
-        header('Location: main.php'); 
+        header('Location: index.php'); 
         exit();
     } else {
         $message = 'Ungültiger Benutzername oder Passwort';

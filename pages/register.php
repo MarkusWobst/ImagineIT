@@ -6,7 +6,6 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-     static $db = new PDO('sqlite:../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -22,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user_exists) {
+        if ($user) {
             $message = 'Der Benutzername ist bereits vergeben.';
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
