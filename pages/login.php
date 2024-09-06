@@ -6,7 +6,7 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $db = new PDO('sqlite:../db/identifier.sqlite');
+    static $db = new PDO('sqlite:../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
 

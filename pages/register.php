@@ -6,7 +6,7 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $db = new PDO('sqlite:../db/identifier.sqlite');
+     static $db = new PDO('sqlite:../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -17,26 +17,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
 
         // Überprüfe, ob der Benutzername bereits existiert
-        $sql = "SELECT * FROM users WHERE username = :username";
-        try {
-            $stmt = $db->prepare($sql);
-            if (!$stmt) {
-                throw new Exception('Failed to prepare SQL query');
-            }
-        } catch (PDOException $e) {
-            echo 'PDO error: ' . $e->getMessage();
-        } catch (Exception $e) {
-            echo 'Error: ' . $e->getMessage();
-        }
-
-        // $stmt = db()->exec("SELECT * FROM users WHERE username = :username");
-
-        // $stmt->bindValue(':username', $username);
-        // $result = $stmt->execute();
-        // $user_exists = $stmt->fetchAll();
-
-        $user = db()->query("SELECT * FROM `users` WHERE username = :username")->fetchAll();
-
+        $stmt = $db->prepare('SELECT * FROM users WHERE username = :username');
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user_exists) {
             $message = 'Der Benutzername ist bereits vergeben.';
@@ -88,9 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Account erstellen</button>
                 </form>
-                <p class="text-danger text-center mt-3">
-                    <?php echo $message; ?>
-                </p>
+                <p class="text-danger text-center mt-3"><?php echo $message; ?></p>
                 <p class="text-center mt-3">
                     Bereits ein Konto? <a href="login.php">Hier einloggen</a>
                 </p>
