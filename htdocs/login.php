@@ -3,7 +3,7 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $db = new SQLite3('../db/users.sqlite');
+    $db = new SQLite3('../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
 
