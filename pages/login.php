@@ -6,8 +6,6 @@ session_start();
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ensure the PDO connection is set correctly
-//    $db = new PDO('sqlite:../db/identifier.sqlite');
     $username = $_POST['username'];
     $password = $_POST['password'];
 
@@ -19,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
-        header('Location: main.php');
+        header('Location: index.php');
         exit();
     } else {
         $message = 'Ungültiger Benutzername oder Passwort';
