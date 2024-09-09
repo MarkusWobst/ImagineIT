@@ -28,21 +28,11 @@ try {
     session_abort();
 }
 
-
-
-
-// $authorized = false;
-// foreach ($chats as $chat) {
-//     if ($userid == $chat["user_id"]) {
-//         $authorized = true;
-//     }
-// }
-
-// if (!$authorized) {
-//     session_abort();
-//     header("/logout.php");
-// }
-
+$messages = [];
+if (isset($_GET['chat_id'])) {
+    $chat = db()->query("SELECT * FROM `chat_records` WHERE `chat_id` = '{$_GET['chat_id']}'")->fetch();
+    $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at")->fetchAll();
+}
 
 ?>
 
@@ -154,54 +144,36 @@ try {
 </head>
 
 <body>
-    <div class="container">
-        <div class="pre-chat">
-            <h1>Chat Id:
-                <?= $chatid ?>
-            </h1>
-            <form method="post" enctype="multipart/form-data">
-                <button class="new-chat-btn" type="submit" name="start_chat">Neuer bob</button>
+<div class="container py-4 flex-grow-1">
+    <div class="card w-100 h-100">
+        <div class="card-body d-flex flex-column h-100">
+            <h5 class="card-title"><?= $chat['id'] ?></h5>
+
+            <?php foreach ($messages as $message) { ?>
+                <div class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
+                    <div class="card-body">
+                        <p class="card-text m-0"><?= $message['content'] ?></p>
+                        <p class="m-0 text-end text-secondary" style="font-size: 10pt"><?= $message['created_at'] ?></p>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+
+        <div class="card-footer">
+            <form action="../composables/process_message.php" method="post">
+                <?php if (isset($_GET['chat_id'])) { ?>
+                <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                <?php } ?>
+
+                <div class="input-group">
+                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
+                </div>
             </form>
         </div>
-        <?php if (isset($_POST['start_chat']) || isset($_POST['send_message']) || isset($_FILES['file_input'])): ?>
-            <div class="chat-container" id="chat-container" style="display: flex;">
-                <div class="chat-box" id="chat-box">
-                    <!-- Chat messages will appear here -->
-                    <?php
-                    if (isset($_POST['send_message'])) {
-                        $userInput = trim(strtolower($_POST['user_input']));
-                        echo "<div>Du: " . htmlspecialchars($userInput) . "</div>";
-
-                        // Hier kannst du deine Logik für die Verarbeitung der Nachricht hinzufügen
-                        echo "<div>Freakbob: " . htmlspecialchars($response) . "</div>";
-                        if ($imageUrl) {
-                            echo "<div><img src='" . htmlspecialchars($imageUrl) . "' style='max-width: 100%; margin-top: 10px;'></div>";
-                        }
-                    }
-
-                    if (isset($_FILES['file_input']) && $_FILES['file_input']['error'] === UPLOAD_ERR_OK) {
-                        $file = $_FILES['file_input'];
-                        $uploadDir = 'uploads/';
-                        $uploadFile = $uploadDir . basename($file['name']);
-                        if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-                            echo "<div><img src='" . htmlspecialchars($uploadFile) . "' style='max-width: 100%; margin-top: 10px;'></div>";
-                        } else {
-                            echo "<div>Fehler beim Hochladen des Bildes.</div>";
-                        }
-                    } elseif (isset($_FILES['file_input'])) {
-                        echo "<div></div>";
-                    }
-                    ?>
-                </div>
-                <form method="post" enctype="multipart/form-data" class="input-box">
-                    <input type="text" name="user_input" placeholder="Schreibe eine Nachricht...">
-                    <button type="submit" name="send_message">Senden</button>
-                    <input type="file" name="file_input" id="file-input" accept="image/*">
-                    <label for="file-input">Bild hochladen</label>
-                </form>
-            </div>
-        <?php endif; ?>
     </div>
+</div>
 </body>
 
 </html>
