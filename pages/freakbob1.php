@@ -110,8 +110,9 @@
                         $response = 'Freaky!';
                         $imageUrl = '../pictures/Freakbob.png'; // Pfad zu deinem Bild
                     } else {
-                        $response = 'Ich habe deine Nachricht erhalten: ' . htmlspecialchars($userInput);
-                        $imageUrl = 'path/to/another/image.jpg'; // Pfad zu einem anderen Bild
+                       
+                        //Hier Ki Zeug machen <---------------
+
                     }
 
                     echo "<div>Freakbob: " . htmlspecialchars($response) . "</div>";
@@ -130,7 +131,7 @@
                         echo "<div>Fehler beim Hochladen des Bildes.</div>";
                     }
                 } elseif (isset($_FILES['file_input'])) {
-                    echo "<div>Keine Fehler!</div>";
+                    echo "<div></div>";
                 }
                 ?>
             </div>
