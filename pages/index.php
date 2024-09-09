@@ -6,12 +6,29 @@ session_start();
 
 // Überprüfe, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
-    header('Location: main.php');
+    header('Location: login.php');
     exit();
 }
 
+// Hole die userid des aktuellen Benutzers
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
+
+// Prüfe, ob der Button "Neuer Chat" gedrückt wurde
+if (isset($_POST['new_chat'])) {
+
+    // Füge den neuen Chat zur Datenbank hinzu
+    $stmt = db()->prepare('INSERT INTO chat_records (user_id) VALUES (:userid)');
+    $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+    // $stmt->bindValue(':chatid', $chatid, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Nach dem Erstellen des Chats Seite neu laden, um die Änderung anzuzeigen
+    // header("Location: index.php");
+    header('Location: chat.php');
+
+    exit();
+}
 
 // Hole alle Chats, die zur aktuellen userid gehören
 $chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
@@ -22,9 +39,9 @@ $chat_stmt->execute();
 
 $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-foreach ($chats as $chat) {
-    $chats_array[] = $chat['chat_id'];
-}
+// foreach ($chats as $chat) {
+//     $chats_array[] = $chat['chat_id'];
+// }
 ?>
 
 <!DOCTYPE html>
@@ -60,13 +77,19 @@ foreach ($chats as $chat) {
                 <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
 
                 <h3 class="text-center mt-4">Deine Chats</h3>
+
+                <!-- Neuer Chat Button -->
+                <form method="POST" class="text-center mb-3">
+                    <button type="submit" name="new_chat" class="btn btn-success">Neuer Chat</button>
+                </form>
+
                 <div class="chats-container mt-3 p-3 border border-secondary rounded">
                     <?php if (empty($chats)): ?>
                         <p class="text-center">Keine Chats vorhanden.</p>
                     <?php else: ?>
                         <?php foreach ($chats as $chatid): ?>
                             <div class="chat-id bg-light p-2 mb-2 text-center">
-                                <?php echo htmlspecialchars($chatid); ?>
+                                <?php echo htmlspecialchars($chatid["chat_id"]); ?>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
