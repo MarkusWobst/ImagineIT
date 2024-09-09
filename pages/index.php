@@ -19,13 +19,10 @@ if (isset($_POST['new_chat'])) {
     // Füge den neuen Chat zur Datenbank hinzu
     $stmt = db()->prepare('INSERT INTO chat_records (user_id) VALUES (:userid)');
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
-    // $stmt->bindValue(':chatid', $chatid, PDO::PARAM_INT);
     $stmt->execute();
 
     // Nach dem Erstellen des Chats Seite neu laden, um die Änderung anzuzeigen
-    // header("Location: index.php");
     header('Location: chat.php');
-
     exit();
 }
 
@@ -45,56 +42,73 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hauptseite</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
+            color: #f0f0f0;
+        }
+        .chats-container .chat-id button {
+            background: #4ca1af;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+        .chats-container .chat-id button:hover {
+            background: #2c3e50;
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand btn btn-outline-primary" href="index.php"
-                style="background: transparent; border-color: transparent;">Main Page</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand btn btn-outline-primary" href="index.php"
+           style="background: transparent; border-color: transparent;">Main Page</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="text-center">Willkommen,
-                    <?php echo htmlspecialchars($username); ?>!
-                </h2>
-                <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Willkommen,
+                <?php echo htmlspecialchars($username); ?>!
+            </h2>
+            <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
 
-                <h3 class="text-center mt-4">Deine Chats</h3>
+            <h3 class="text-center mt-4">Deine Chats</h3>
 
-                <!-- Neuer Chat Button -->
-                <form method="POST" class="text-center mb-3">
-                    <button type="submit" name="new_chat" class="btn btn-success">Neuer Chat</button>
-                </form>
+            <!-- Neuer Chat Button -->
+            <form method="POST" class="text-center mb-3">
+                <button type="submit" name="new_chat" class="btn btn-success">Neuer Chat</button>
+            </form>
 
-                <div class="chats-container mt-3 p-3 border border-secondary rounded">
-                    <?php if (empty($chats)): ?>
-                        <p class="text-center">Keine Chats vorhanden.</p>
-                    <?php else: ?>
-                        <?php foreach ($chats as $chatid): ?>
-                            <div class="chat-id bg-light p-2 mb-2 text-center">
-                                <?php echo htmlspecialchars($chatid["chat_id"]); ?>
-                                <form action="/chat.php" method="get">
-                                    <input type="hidden" name="chat_id" value="<?= $chatid['chat_id']?>">
-                                    <button type="submit">öffnen</button>
-                                </form>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
+            <div class="chats-container mt-3 p-3 border border-secondary rounded">
+                <?php if (empty($chats)): ?>
+                    <p class="text-center">Keine Chats vorhanden.</p>
+                <?php else: ?>
+                    <?php foreach ($chats as $chatid): ?>
+                        <div class="chat-id bg-light p-2 mb-2 text-center">
+                            <?php echo htmlspecialchars($chatid["chat_id"]); ?>
+                            <form action="/chat.php" method="get">
+                                <input type="hidden" name="chat_id" value="<?= $chatid['chat_id']?>">
+                                <button type="submit">öffnen</button>
+                            </form>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+</div>
 </body>
 
 </html>
