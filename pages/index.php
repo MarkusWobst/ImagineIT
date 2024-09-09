@@ -16,23 +16,27 @@ $userid = $_SESSION['userid'];
 // Hole alle Chats, die zur aktuellen userid gehören
 $chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
-$chat_result = $chat_stmt->execute();
+$chat_stmt->execute();
 
-$chats = [];
+// $chats = [];
 
-while ($chat = $chat_result->fetch(PDO::FETCH_ASSOC)) {
-    $chats[] = $chat['chatid'];
+$chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($chats as $chat) {
+    $chats_array[] = $chat['chat_id'];
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hauptseite</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
@@ -50,9 +54,11 @@ while ($chat = $chat_result->fetch(PDO::FETCH_ASSOC)) {
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <h2 class="text-center">Willkommen, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                <h2 class="text-center">Willkommen,
+                    <?php echo htmlspecialchars($_SESSION['username']); ?>!
+                </h2>
                 <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
-                
+
                 <h3 class="text-center mt-4">Deine Chats</h3>
                 <div class="chats-container mt-3 p-3 border border-secondary rounded">
                     <?php if (empty($chats)): ?>
@@ -73,4 +79,5 @@ while ($chat = $chat_result->fetch(PDO::FETCH_ASSOC)) {
         </div>
     </div>
 </body>
+
 </html>
