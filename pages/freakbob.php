@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein ChatGPT</title>
+    <title>Mein Freakbob</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: url('./pictures/Freakbob.png') no-repeat center center fixed;
+            background: url('../pictures/Freakbob.png') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -91,8 +91,8 @@
 <body>
     <div class="container">
         <div class="pre-chat">
-            <h1>Willkommen zu meinem ChatGPT</h1>
-            <button class="new-chat-btn" onclick="startChat()">Neuer Chat</button>
+            <h1>Willkommen zu Freakbob</h1>
+            <button class="new-chat-btn" onclick="startChat()">Neuer bob</button>
         </div>
         <div class="chat-container" id="chat-container">
             <div class="chat-box" id="chat-box">
