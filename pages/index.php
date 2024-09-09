@@ -6,7 +6,7 @@ session_start();
 
 // Überprüfe, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
+    header('Location: main.php');
     exit();
 }
 
