@@ -6,7 +6,7 @@ session_start();
 
 // Überprüfe, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
+    header('Location: start.php');
     exit();
 }
 
@@ -55,26 +55,24 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Main Page</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand btn btn-outline-primary" href="index.php" style="background: transparent; border-color: transparent;">Main Page</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="text-center">Willkommen,
-                    <?php echo htmlspecialchars($_SESSION['username']); ?>!
-                </h2>
-                <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Willkommen, <?php echo htmlspecialchars($username); ?>!</h2>
+            <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
 
                 <h3 class="text-center mt-4">Deine Chats</h3>
 
@@ -101,6 +99,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+</div>
 </body>
-
 </html>

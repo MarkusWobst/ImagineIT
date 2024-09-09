@@ -21,6 +21,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // schickt zu main.php
-header("Location: main.php");
+header("Location: start.php");
 exit;
 ?>
