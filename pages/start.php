@@ -23,6 +23,11 @@
             padding: 20px;
             margin-bottom: 20px;
         }
+        .info-card img {
+            max-width: 100%;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
         .footer {
             text-align: center;
             margin-top: 50px;
@@ -56,31 +61,27 @@
     <div class="row">
         <div class="col-md-4">
             <div class="info-card">
-                <h2>Wer wir sind</h2>
-                <p>ImagineIT ist eine hochmoderne KI, die Geschichten aus Bildern und Text-Inputs erstellt. Egal, ob Sie ein Bild haben, aus dem Sie eine Geschichte machen wollen, oder einen Text, zu dem passende Bilder geschaffen werden sollen - ImagineIT steht Ihnen zur Seite.</p>
+                <h2>Ritter Freakbob</h2>
+                <img src="../pictures/freakbob%20ritter.jfif" alt="Ein beschreibendes Bild für Tolle Geschichte">
+                <p></p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="info-card">
-                <h2>Unsere Mission</h2>
-                <p>Wir möchten die Art und Weise revolutionieren, wie Geschichten erzählt werden, indem wir intelligente und intuitive Werkzeuge anbieten. ImagineIT vereinfacht es, kreative Geschichten zu erstellen und visuell ansprechende Inhalte zu erzeugen.</p>
+                <h2>King Freakbob XIV</h2>
+                <img src="../pictures/king%20bob.jfif" alt="Ein beschreibendes Bild für Tolle Geschichte">
+                <p></p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="info-card">
-                <h2>Eigenschaften</h2>
-                <ul>
-                    <li>Bild-zu-Geschichte Konvertierung</li>
-                    <li>Text-zu-Bild Erzeugung</li>
-                    <li>Intelligente Bilderkennung</li>
-                    <li>Nahtlose Inhaltserstellung</li>
-                    <li>Kollaborative Werkzeuge</li>
-                </ul>
+                <h2>Super Bob</h2>
+                <img src="../pictures/freakbob3.jfif" alt="Ein beschreibendes Bild für Tolle Geschichte">
             </div>
         </div>
     </div>
     <div class="footer">
-        <p>&copy; 2024 ImagineIT. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2024 ImagineIT. Powered by LAVA-PHI3.</p>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
