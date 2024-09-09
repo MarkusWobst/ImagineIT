@@ -13,6 +13,8 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
+// TODO: gucken ob userid da ist!
+
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
 if (isset($_POST['new_chat'])) {
 
@@ -27,7 +29,7 @@ if (isset($_POST['new_chat'])) {
 }
 
 // Hole alle Chats, die zur aktuellen userid gehören
-$chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
+$chat_stmt = db()->prepare('SELECT id FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
 $chat_stmt->execute();
 $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);

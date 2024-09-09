@@ -1,6 +1,7 @@
 <?php
 
 require_once "../composables/db.php";
+require_once "../composables/processMessage.php";
 
 session_start();
 
@@ -14,7 +15,7 @@ $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
 try {
-    $chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid AND chat_id = :chatid');
+    $chat_stmt = db()->prepare('SELECT id FROM chat_records WHERE user_id = :userid AND id = :chatid');
     $chat_stmt->bindValue(':userid', $userid);
     $chat_stmt->bindValue(':chatid', $chatid);
     $chat_stmt->execute();
@@ -30,8 +31,8 @@ try {
 
 $messages = [];
 if (isset($_GET['chat_id'])) {
-    $chat = db()->query("SELECT * FROM `chat_records` WHERE `chat_id` = '{$_GET['chat_id']}'")->fetch();
-    $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at")->fetchAll();
+    $chat = db()->query("SELECT * FROM `chat_records` WHERE `id` = '{$_GET['chat_id']}'")->fetch();
+    $messages = db()->query("SELECT * FROM `messages` WHERE `id` = '{$_GET['chat_id']}' ORDER BY createte")->fetchAll();
 }
 
 ?>
@@ -160,7 +161,7 @@ if (isset($_GET['chat_id'])) {
         </div>
 
         <div class="card-footer">
-            <form action="../composables/process_message.php" method="post">
+            <form action="../composables/processMessage.php" method="post">
                 <?php if (isset($_GET['chat_id'])) { ?>
                 <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                 <?php } ?>
