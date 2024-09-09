@@ -1,9 +1,14 @@
 <?php
-// Startet die Sitzung
 session_start();
+
+// datenbank verbindng trennen
+if (isset($db_connection)) {
+    $db_connection->close();
+}
 
 $_SESSION = array();
 
+// cookies gelöcht
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -12,15 +17,10 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Terminiert die Sitzung
+// terminiert sitzung
 session_destroy();
 
-// DB Verbindung wird getrennt wenn vorhanden
-if (isset($db_connection)) {
-    $db_connection->close();
-}
-
-// Schickt auf die Main Page
+// schickt zu main.php
 header("Location: main.php");
 exit;
 ?>
