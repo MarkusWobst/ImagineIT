@@ -6,7 +6,7 @@ session_start();
 
 // Überprüfe, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
-    header('Location: main.php');
+    header('Location: start.php');
     exit();
 }
 
@@ -38,46 +38,39 @@ foreach ($chats as $chat) {
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Main Page</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand btn btn-outline-primary" href="index.php" style="background: transparent; border-color: transparent;">Main Page</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="text-center">Willkommen,
-                    <?php echo htmlspecialchars($_SESSION['username']); ?>!
-                </h2>
-                <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Willkommen, <?php echo htmlspecialchars($username); ?>!</h2>
+            <p class="text-center">Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
 
-                <h3 class="text-center mt-4">Deine Chats</h3>
-                <div class="chats-container mt-3 p-3 border border-secondary rounded">
-                    <?php if (empty($chats)): ?>
-                        <p class="text-center">Keine Chats vorhanden.</p>
-                    <?php else: ?>
-                        <?php foreach ($chats as $chatid): ?>
-                            <div class="chat-id bg-light p-2 mb-2 text-center">
-                                <?php echo htmlspecialchars($chatid); ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-                <div class="d-grid gap-2 mt-3">
-                    <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-                </div>
+            <h3 class="text-center mt-4">Deine Chats</h3>
+            <div class="chats-container mt-3 p-3 border border-secondary rounded">
+                <?php if (empty($chats)): ?>
+                    <p class="text-center">Keine Chats vorhanden.</p>
+                <?php else: ?>
+                    <?php foreach ($chats as $chatid): ?>
+                        <div class="chat-id bg-light p-2 mb-2 text-center">
+                            <?php echo htmlspecialchars($chatid['chat_id']); ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+</div>
 </body>
-
 </html>
