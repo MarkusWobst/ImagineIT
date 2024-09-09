@@ -1,6 +1,6 @@
 <?php
 
-require_once "db.php";
+require_once "../composables/db.php";
 
 session_start();
 $message = '';
