@@ -10,7 +10,6 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Hole die userid des aktuellen Benutzers
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
@@ -34,14 +33,8 @@ if (isset($_POST['new_chat'])) {
 $chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
 $chat_stmt->execute();
-
-// $chats = [];
-
 $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// foreach ($chats as $chat) {
-//     $chats_array[] = $chat['chat_id'];
-// }
 ?>
 
 <!DOCTYPE html>
@@ -91,6 +84,10 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php foreach ($chats as $chatid): ?>
                             <div class="chat-id bg-light p-2 mb-2 text-center">
                                 <?php echo htmlspecialchars($chatid["chat_id"]); ?>
+                                <form action="/chat.php" method="get">
+                                    <input type="hidden" name="chat_id" value="<?= $chatid['chat_id']?>">
+                                    <button type="submit">öffnen</button>
+                                </form>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
