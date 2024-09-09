@@ -1,5 +1,5 @@
 <?php
-// startet die sitzung
+// Startet die Sitzung
 session_start();
 
 $_SESSION = array();
@@ -12,15 +12,15 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// terminiert die sitzung
+// Terminiert die Sitzung
 session_destroy();
 
-// db verbinndung wird getrrennt wenn vorhanden
+// DB Verbindung wird getrennt wenn vorhanden
 if (isset($db_connection)) {
     $db_connection->close();
 }
 
-// schickt auf Main page
+// Schickt auf die Main Page
 header("Location: main.php");
 exit;
 ?>
