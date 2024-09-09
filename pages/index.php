@@ -92,10 +92,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-
-                <div class="d-grid gap-2 mt-3">
-                    <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-                </div>
             </div>
         </div>
     </div>
