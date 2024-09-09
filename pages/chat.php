@@ -1,14 +1,64 @@
+<?php
+
+require_once "../composables/db.php";
+
+session_start();
+
+// Überprüfe, ob der Benutzer eingeloggt ist
+if (!isset($_SESSION['username'])) {
+    header('Location: start.php');
+    exit();
+}
+
+$userid = $_SESSION['userid'];
+$chatid = $_GET["chat_id"];
+
+try {
+    $chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid AND chat_id = :chatid');
+    $chat_stmt->bindValue(':userid', $userid);
+    $chat_stmt->bindValue(':chatid', $chatid);
+    $chat_stmt->execute();
+    $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (count($chats) == 0) {
+        throw new Exception("you shall not pass!!!");
+    }
+} catch (\Throwable $th) {
+    header('Location: logout.php');
+
+    session_abort();
+}
+
+
+
+
+// $authorized = false;
+// foreach ($chats as $chat) {
+//     if ($userid == $chat["user_id"]) {
+//         $authorized = true;
+//     }
+// }
+
+// if (!$authorized) {
+//     session_abort();
+//     header("/logout.php");
+// }
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein Freakbob</title>
+    <title>Chat Id:
+        <?= $chatid ?>
+    </title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: url('../pictures/Freakbob.png') no-repeat center center fixed;
+            /* background: url('../pictures/Freakbob.png') no-repeat center center fixed; */
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -106,7 +156,9 @@
 <body>
     <div class="container">
         <div class="pre-chat">
-            <h1>Willkommen zu Freakbob</h1>
+            <h1>Chat Id:
+                <?= $chatid ?>
+            </h1>
             <form method="post" enctype="multipart/form-data">
                 <button class="new-chat-btn" type="submit" name="start_chat">Neuer bob</button>
             </form>
