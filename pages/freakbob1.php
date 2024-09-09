@@ -92,69 +92,56 @@
     <div class="container">
         <div class="pre-chat">
             <h1>Willkommen zu Freakbob</h1>
-            <button class="new-chat-btn" onclick="startChat()">Neuer bob</button>
+            <form method="post" enctype="multipart/form-data">
+                <button class="new-chat-btn" type="submit" name="start_chat">Neuer bob</button>
+            </form>
         </div>
-        <div class="chat-container" id="chat-container">
+        <?php if (isset($_POST['start_chat']) || isset($_POST['send_message']) || isset($_FILES['file_input'])): ?>
+        <div class="chat-container" id="chat-container" style="display: flex;">
             <div class="chat-box" id="chat-box">
                 <!-- Chat messages will appear here -->
-            </div>
-            <div class="input-box">
-                <input type="text" id="user-input" placeholder="Schreibe eine Nachricht...">
-                <button onclick="sendMessage()">Senden</button>
-                <input type="file" id="file-input" accept="image/*" onchange="uploadImage(event)">
-                <label for="file-input">Bild hochladen</label>
-            </div>
-        </div>
-    </div>
+                <?php
+                if (isset($_POST['send_message'])) {
+                    $userInput = trim(strtolower($_POST['user_input']));
+                    echo "<div>Du: " . htmlspecialchars($userInput) . "</div>";
 
-    <script>
-        function startChat() {
-            document.querySelector('.pre-chat').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'flex';
-        }
+                    // Hier kannst du deine Logik für die Verarbeitung der Nachricht hinzufügen
+                    if ($userInput === 'freakbob') {
+                        $response = 'Freaky!';
+                        $imageUrl = '../pictures/Freakbob.png'; // Pfad zu deinem Bild
+                    } else {
+                        $response = 'Ich habe deine Nachricht erhalten: ' . htmlspecialchars($userInput);
+                        $imageUrl = 'path/to/another/image.jpg'; // Pfad zu einem anderen Bild
+                    }
 
-        function sendMessage() {
-            var userInput = document.getElementById('user-input').value;
-            var chatBox = document.getElementById('chat-box');
-
-            if (userInput.trim() !== "") {
-                var userMessage = document.createElement('div');
-                userMessage.textContent = "Du: " + userInput;
-                chatBox.appendChild(userMessage);
-
-                // Clear the input field
-                document.getElementById('user-input').value = "";
-
-                // Scroll to the bottom of the chat box
-                chatBox.scrollTop = chatBox.scrollHeight;
-
-                // Here you would typically send the message to your backend or AI model
-                // and append the response to the chat box
-            }
-        }
-
-        function uploadImage(event) {
-            var file = event.target.files[0];
-            var chatBox = document.getElementById('chat-box');
-
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '100%';
-                    img.style.marginTop = '10px';
-                    chatBox.appendChild(img);
-
-                    // Scroll to the bottom of the chat box
-                    chatBox.scrollTop = chatBox.scrollHeight;
-
-                    // Here you would typically send the image to your backend or AI model
-                    // and append the response to the chat box
+                    echo "<div>Freakbob: " . htmlspecialchars($response) . "</div>";
+                    if ($imageUrl) {
+                        echo "<div><img src='" . htmlspecialchars($imageUrl) . "' style='max-width: 100%; margin-top: 10px;'></div>";
+                    }
                 }
-                reader.readAsDataURL(file);
-            }
-        }
-    </script>
+
+                if (isset($_FILES['file_input']) && $_FILES['file_input']['error'] === UPLOAD_ERR_OK) {
+                    $file = $_FILES['file_input'];
+                    $uploadDir = 'uploads/';
+                    $uploadFile = $uploadDir . basename($file['name']);
+                    if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
+                        echo "<div><img src='" . htmlspecialchars($uploadFile) . "' style='max-width: 100%; margin-top: 10px;'></div>";
+                    } else {
+                        echo "<div>Fehler beim Hochladen des Bildes.</div>";
+                    }
+                } elseif (isset($_FILES['file_input'])) {
+                    echo "<div>Keine Fehler!</div>";
+                }
+                ?>
+            </div>
+            <form method="post" enctype="multipart/form-data" class="input-box">
+                <input type="text" name="user_input" placeholder="Schreibe eine Nachricht...">
+                <button type="submit" name="send_message">Senden</button>
+                <input type="file" name="file_input" id="file-input" accept="image/*">
+                <label for="file-input">Bild hochladen</label>
+            </form>
+        </div>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
