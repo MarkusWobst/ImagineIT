@@ -26,7 +26,6 @@ try {
     var_dump($chatid);
     die;
     header('Location: logout.php');
-
     session_abort();
 }
 
@@ -44,13 +43,10 @@ if (isset($_GET['chat_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Id:
-        <?= $chatid ?>
-    </title>
+    <title>Chat Id: <?= $chatid ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            /* background: url('../pictures/Freakbob.png') no-repeat center center fixed; */
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -146,43 +142,71 @@ if (isset($_GET['chat_id'])) {
 </head>
 
 <body>
-    <div class="container py-4 flex-grow-1">
-        <div class="card w-100 h-100">
-            <div class="card-body d-flex flex-column h-100">
-                <h5 class="card-title">
-                    <?= $chat['id'] ?>
-                </h5>
+<div class="container py-4 flex-grow-1">
+    <div class="card w-100 h-100">
+        <div class="card-body d-flex flex-column h-100">
+            <h5 class="card-title"><?= $chat['id'] ?></h5>
 
-                <?php foreach ($messages as $message) { ?>
-                    <div
-                        class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
-                        <div class="card-body">
-                            <p class="card-text m-0">
-                                <?= $message['content'] ?>
-                            </p>
-                            <p class="m-0 text-end text-secondary" style="font-size: 10pt">
-                                <?= $message['created_at'] ?>
-                            </p>
-                        </div>
+            <?php foreach ($messages as $message) { ?>
+                <div class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
+                    <div class="card-body">
+                        <p class="card-text m-0"><?= $message['content'] ?></p>
+                        <p class="m-0 text-end text-secondary" style="font-size: 10pt"><?= $message['created_at'] ?></p>
                     </div>
+                </div>
+            <?php } ?>
+
+            <button class="delete-chat-btn" data-chat-id="<?= $chat['id'] ?>">Delete Chat</button>
+        </div>
+
+        <div class="card-footer">
+            <form action="/process-message.php" method="post">
+                <?php if ($chatid) { ?>
+                    <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                 <?php } ?>
-            </div>
 
-            <div class="card-footer">
-                <form action="/process-message.php" method="post">
-                    <?php if ($chatid) { ?>
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                    <?php } ?>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
 
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-
-                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
-                    </div>
-                </form>
-            </div>
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.delete-chat-btn').addEventListener('click', function() {
+            const chatId = this.getAttribute('data-chat-id');
+            deleteChat(chatId);
+        });
+    });
+
+    function deleteChat(chatId) {
+        console.log('Deleting chat with ID:', chatId);
+        fetch(`/pages/deleteChat.php`, { // Updated path to the new location
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ chat_id: chatId })
+        }).then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                if (data.success) {
+                    document.getElementById(`chat-${chatId}`).remove();
+                    alert('Chat deleted successfully');
+                    window.location.href = 'index.php'; // Redirect to an appropriate page
+                } else {
+                    alert('Error deleting chat: ' + data.message);
+                }
+            }).catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting chat');
+        });
+    }
+</script>
 </body>
 
 </html>
