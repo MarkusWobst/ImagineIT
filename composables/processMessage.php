@@ -2,8 +2,11 @@
 
 require_once 'db.php';
 
-$chatid = $_POST['chat_id'] ?? null;
-$userid = $_SESSION['userid'];
+session_start();
+
+$chatid = $_GET['chat_id'] ?? null;
+$_SESSION['chat_id'] = $chatid;
+$userid = $_SESSION['user_id'];
 
 $messages = [];
 if ($chatid) {
@@ -32,7 +35,7 @@ $body['messages'][] = [
 ];
 
 $content = SQLite3::escapeString($_POST['message']);
-$messages = db()->exec("INSERT INTO messages (chat_id, role, content, createte) VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP)");
+$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP)");
 
 $ch = curl_init(); // such as http://example.com/example.xml
 curl_setopt_array($ch, [
@@ -52,6 +55,6 @@ $data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
 $content = SQLite3::escapeString($data['message']['content'] ?? $data['messages'][0]['content']);
-$messages = db()->exec("INSERT INTO messages (chat_id, role, content, createte) VALUES ({$chatid}, 'assistent', '{$content}', CURRENT_TIMESTAMP)");
+$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistent', '{$content}', CURRENT_TIMESTAMP)");
 
-header('Location: index.php?chat_id=' . $chatid);
+header('Location: chat.php?chat_id=' . $chatid);
