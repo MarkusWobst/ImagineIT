@@ -71,16 +71,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if (isBlocked($attempts_file, $block_time, $attempts_limit, $time_window)) {
-        header("Location: blocked.php");
-        exit();
-    }
+    $blocked = isBlocked($attempts_file, $block_time, $attempts_limit, $time_window);
 
     // Prepare and execute the statement to fetch user data
     $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
     $stmt->bindValue(':username', $username);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($blocked && $user && password_verify($password, $user['password'])) {
+        // If blocked but login is successful, reset the login attempts
+        resetLoginAttempts($attempts_file);
+    }
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['username'] = $username;
@@ -89,6 +91,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header('Location: index.php');
         exit();
     } else {
+        if ($blocked) {
+            header("Location: blocked.php");
+            exit();
+        }
         logAttempt($attempts_file);
         $message = 'Ungültiger Benutzername oder Passwort';
     }
