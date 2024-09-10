@@ -23,8 +23,6 @@ try {
         throw new Exception("you shall not pass!!!");
     }
 } catch (\Throwable $th) {
-    var_dump($chatid);
-    die;
     header('Location: logout.php');
     session_abort();
 }
