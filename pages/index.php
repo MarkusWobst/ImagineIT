@@ -66,8 +66,16 @@ if (isset($_POST['delete_chat']) && isset($_POST['chat_id'])) {
 }
 
 // Hole alle Chats, die zur aktuellen userid gehören
-$chat_stmt = db()->prepare('SELECT * FROM chat_records WHERE user_id = :userid');
-$chat_stmt->bindValue(':userid', $userid);
+$search_query = '';
+if (isset($_GET['search'])) {
+    $search_query = $_GET['search'];
+    $chat_stmt = db()->prepare('SELECT * FROM chat_records WHERE user_id = :userid AND title LIKE :search');
+    $chat_stmt->bindValue(':userid', $userid);
+    $chat_stmt->bindValue(':search', '%' . $search_query . '%');
+} else {
+    $chat_stmt = db()->prepare('SELECT * FROM chat_records WHERE user_id = :userid');
+    $chat_stmt->bindValue(':userid', $userid);
+}
 $chat_stmt->execute();
 $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -108,30 +116,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
-        }
-
-        .main-content::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 200px;
-            height: 200px;
-            background: rgba(0, 123, 255, 0.1);
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        .main-content::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            left: -50px;
-            width: 200px;
-            height: 200px;
-            background: rgba(40, 167, 69, 0.1);
-            border-radius: 50%;
-            z-index: 0;
         }
 
         .main-content h3 {
@@ -198,16 +182,17 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .btn-new-chat {
-            background: #dc3545;
+            background: #2c3e50;
             color: #ffffff;
             border: none;
-            padding: 15px 30px;
-            font-size: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
             transition: background 0.3s;
+            z-index: 1; /* Ensure the button is in the foreground */
         }
 
         .btn-new-chat:hover {
-            background: #c82333;
+            background: #1a252f;
         }
 
         .text-center {
@@ -228,6 +213,16 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .search-bar input {
             flex: 1;
+            padding: 5px 10px;
+        }
+
+        .search-bar button {
+            padding: 5px 10px;
+        }
+
+        .search-bar form {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -250,9 +245,15 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="row">
         <div class="col-md-12">
             <div class="main-content text-center">
-                <form method="POST">
-                    <button type="submit" name="new_chat" class="btn btn-new-chat">Neuer Chat</button>
-                </form>
+                <div class="search-bar">
+                    <form method="GET" class="d-flex w-100">
+                        <input type="text" name="search" class="form-control" placeholder="Suche nach Chats" value="<?= htmlspecialchars($search_query); ?>">
+                        <button type="submit" class="btn btn-primary">Suchen</button>
+                    </form>
+                    <form method="POST">
+                        <button type="submit" name="new_chat" class="btn btn-new-chat">Neuer Chat</button>
+                    </form>
+                </div>
                 <h3 class="text-center mt-4"><i class="fas fa-comments icon"></i>Deine Chats</h3>
                 <div class="chats-container mt-3">
                     <?php if (empty($chats)): ?>
