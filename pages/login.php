@@ -72,8 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     if (isBlocked($attempts_file, $block_time, $attempts_limit, $time_window)) {
-        header("HTTP/1.1 429 Too Many Requests");
-        echo "You've exceeded the number of login attempts. We've blocked IP address {$_SERVER['REMOTE_ADDR']} for 2 minutes.";
+        header("Location: blocked.php");
         exit();
     }
 
