@@ -17,7 +17,7 @@ $userid = $_SESSION['userid'];
 if (isset($_POST['new_chat'])) {
 
     // Füge den neuen Chat zur Datenbank hinzu
-    $stmt = db()->prepare('INSERT INTO chat_records (user_id) VALUES (:userid)');
+    $stmt = db()->prepare('INSERT INTO chat_records (user_id, title) VALUES (:userid, "new chat")');
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
     $stmt->execute();
 
@@ -27,7 +27,7 @@ if (isset($_POST['new_chat'])) {
 }
 
 // Hole alle Chats, die zur aktuellen userid gehören
-$chat_stmt = db()->prepare('SELECT chat_id FROM chat_records WHERE user_id = :userid');
+$chat_stmt = db()->prepare('SELECT * FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
 $chat_stmt->execute();
 $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -45,11 +45,11 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
     <style>
         body {
             background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
-            color: #f0f0f0;
+            color: #000;
         }
         .chats-container .chat-id button {
             background: #4ca1af;
-            color: #fff;
+            color: #ffffff;
             border: none;
             border-radius: 5px;
             padding: 5px 10px;
@@ -95,11 +95,11 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (empty($chats)): ?>
                     <p class="text-center">Keine Chats vorhanden.</p>
                 <?php else: ?>
-                    <?php foreach ($chats as $chatid): ?>
+                    <?php foreach ($chats as $chat): ?>
                         <div class="chat-id bg-light p-2 mb-2 text-center">
-                            <?php echo htmlspecialchars($chatid["chat_id"]); ?>
+                            <?= htmlspecialchars($chat["title"]); ?>
                             <form action="/chat.php" method="get">
-                                <input type="hidden" name="chat_id" value="<?= $chatid['chat_id']?>">
+                                <input type="hidden" name="chat_id" value="<?= $chat['id']?>">
                                 <button type="submit">öffnen</button>
                             </form>
                         </div>
