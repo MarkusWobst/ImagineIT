@@ -224,6 +224,17 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             gap: 10px;
         }
+
+        .settings-button {
+            background: none;
+            border: none;
+            color: #f8f9fa;
+            font-size: 20px;
+        }
+
+        .settings-button .fa-gear {
+            font-size: 24px;
+        }
     </style>
 </head>
 
@@ -233,8 +244,15 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         <a class="navbar-brand" href="#">Willkommen, <?php echo htmlspecialchars($username); ?>!</a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
+                <li class="nav-item dropdown">
+                    <button class="settings-button" id="welcomeButton">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                    <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
+                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
+                        <a class="dropdown-item" href="help.php">Hilfe</a>
+                        <a class="dropdown-item" href="logout.php">Logout</a>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -281,6 +299,17 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('welcomeButton').addEventListener('click', function () {
+        var dropdown = document.getElementById('settingsDropdown');
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
 </body>
 
 </html>
