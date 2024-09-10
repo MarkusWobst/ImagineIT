@@ -1,7 +1,6 @@
 <?php
 
 require_once "../composables/db.php";
-require_once "../composables/processMessage.php";
 
 session_start();
 
@@ -24,6 +23,8 @@ try {
         throw new Exception("you shall not pass!!!");
     }
 } catch (\Throwable $th) {
+    var_dump($chatid);
+    die;
     header('Location: logout.php');
 
     session_abort();
@@ -32,7 +33,7 @@ try {
 $messages = [];
 if (isset($_GET['chat_id'])) {
     $chat = db()->query("SELECT * FROM `chat_records` WHERE `id` = '{$_GET['chat_id']}'")->fetch();
-    $messages = db()->query("SELECT * FROM `messages` WHERE `id` = '{$_GET['chat_id']}' ORDER BY createte")->fetchAll();
+    $messages = db()->query("SELECT * FROM `messages` WHERE `id` = '{$_GET['chat_id']}' ORDER BY created_at")->fetchAll();
 }
 
 ?>
@@ -145,36 +146,43 @@ if (isset($_GET['chat_id'])) {
 </head>
 
 <body>
-<div class="container py-4 flex-grow-1">
-    <div class="card w-100 h-100">
-        <div class="card-body d-flex flex-column h-100">
-            <h5 class="card-title"><?= $chat['id'] ?></h5>
+    <div class="container py-4 flex-grow-1">
+        <div class="card w-100 h-100">
+            <div class="card-body d-flex flex-column h-100">
+                <h5 class="card-title">
+                    <?= $chat['id'] ?>
+                </h5>
 
-            <?php foreach ($messages as $message) { ?>
-                <div class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
-                    <div class="card-body">
-                        <p class="card-text m-0"><?= $message['content'] ?></p>
-                        <p class="m-0 text-end text-secondary" style="font-size: 10pt"><?= $message['created_at'] ?></p>
+                <?php foreach ($messages as $message) { ?>
+                    <div
+                        class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
+                        <div class="card-body">
+                            <p class="card-text m-0">
+                                <?= $message['content'] ?>
+                            </p>
+                            <p class="m-0 text-end text-secondary" style="font-size: 10pt">
+                                <?= $message['created_at'] ?>
+                            </p>
+                        </div>
                     </div>
-                </div>
-            <?php } ?>
-        </div>
-
-        <div class="card-footer">
-            <form action="../composables/processMessage.php" method="post">
-                <?php if (isset($_GET['chat_id'])) { ?>
-                <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                 <?php } ?>
+            </div>
 
-                <div class="input-group">
-                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+            <div class="card-footer">
+                <form action="/process-message.php" method="post">
+                    <?php if ($chatid) { ?>
+                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                    <?php } ?>
 
-                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
-                </div>
-            </form>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </body>
 
 </html>

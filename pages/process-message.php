@@ -1,23 +1,23 @@
 <?php
 
-require_once 'db.php';
+require_once '../composables/db.php';
 
 session_start();
 
-$chatid = $_GET['chat_id'] ?? null;
+$chatid = $_POST["chat_id"] ?? null;
 $_SESSION['chat_id'] = $chatid;
-$userid = $_SESSION['user_id'];
+$userid = $_SESSION['userid'];
 
 $messages = [];
 if ($chatid) {
     $messages = db()->query("SELECT * FROM `messages` WHERE `id` = '{$chatid}' ORDER BY created_at")->fetchAll();
 } else {
-    db()->exec("INSERT INTO `chat_records` (title, user_id) VALUES ('Neuer Chat', '{$userid}')");
+    db()->exec("INSERT INTO `chat_records` (title, user_id) VALUES ('Neuer Chat', {$userid})");
     $chatid = db()->lastInsertId();
 }
 
 $body = [
-    'model' => 'phi3',
+    'model' => 'llava',
     'stream' => false,
     'messages' => []
 ];
