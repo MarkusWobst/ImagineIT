@@ -26,6 +26,21 @@ if (isset($_POST['new_chat'])) {
     exit();
 }
 
+// Prüfe, ob der Button "Löschen" gedrückt wurde
+if (isset($_POST['delete_chat']) && isset($_POST['chat_id'])) {
+    $chat_id = $_POST['chat_id'];
+
+    // Lösche den Chat aus der Datenbank
+    $stmt = db()->prepare('DELETE FROM chat_records WHERE id = :chat_id AND user_id = :userid');
+    $stmt->bindValue(':chat_id', $chat_id, PDO::PARAM_INT);
+    $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Nach dem Löschen des Chats Seite neu laden, um die Änderung anzuzeigen
+    header('Location: chat.php');
+    exit();
+}
+
 // Hole alle Chats, die zur aktuellen userid gehören
 $chat_stmt = db()->prepare('SELECT * FROM chat_records WHERE user_id = :userid');
 $chat_stmt->bindValue(':userid', $userid);
@@ -60,17 +75,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .container {
             margin-top: 20px;
-        }
-
-        .sidebar {
-            background: #343a40;
-            color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .sidebar h3 {
-            color: #f8f9fa;
         }
 
         .main-content {
@@ -138,6 +142,11 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #343a40;
         }
 
+        .chat-card .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
         .chat-card button {
             background: #007bff;
             color: #ffffff;
@@ -151,14 +160,27 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             background: #0056b3;
         }
 
-        .btn-success {
-            background: #28a745;
+        .btn-delete {
+            background: #dc3545;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-new-chat {
+            background: #17a2b8;
             border: none;
             transition: background 0.3s;
         }
 
-        .btn-success:hover {
-            background: #218838;
+        .btn-new-chat:hover {
+            background: #138496;
         }
 
         .text-center {
@@ -172,7 +194,13 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .search-bar {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
         }
     </style>
 </head>
@@ -180,7 +208,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">Main Page</a>
+            <a class="navbar-brand" href="#">Willkommen, <?php echo htmlspecialchars($username); ?>!</a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -193,19 +221,13 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                <div class="sidebar">
-                    <h3>Willkommen, <?php echo htmlspecialchars($username); ?>!</h3>
-                    <p>Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
-                    <form method="POST">
-                        <button type="submit" name="new_chat" class="btn btn-success w-100">Neuer Chat</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-9">
+            <div class="col-md-12">
                 <div class="main-content">
                     <div class="search-bar">
                         <input type="text" class="form-control" placeholder="Suche nach Chats...">
+                        <form method="POST">
+                            <button type="submit" name="new_chat" class="btn btn-new-chat">Neuer Chat</button>
+                        </form>
                     </div>
                     <h3 class="text-center"><i class="fas fa-comments icon"></i>Deine Chats</h3>
                     <div class="chats-container mt-3">
@@ -215,11 +237,17 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php foreach ($chats as $chat): ?>
                                 <div class="chat-card">
                                     <h5><?= htmlspecialchars($chat["title"]); ?></h5>
-                                    <form action="./chat.php" method="get">
-                                        <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                        <input type="hidden" name="user_id" value="<?= $_SESSION['userid'] ?>">
-                                        <button type="submit">öffnen</button>
-                                    </form>
+                                    <div class="btn-group">
+                                        <form action="./chat.php" method="get">
+                                            <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
+                                            <input type="hidden" name="user_id" value="<?= $_SESSION['userid'] ?>">
+                                            <button type="submit">öffnen</button>
+                                        </form>
+                                        <form method="POST">
+                                            <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
+                                            <button type="submit" name="delete_chat" class="btn btn-delete">Löschen</button>
+                                        </form>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
