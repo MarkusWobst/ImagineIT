@@ -4,7 +4,7 @@ require_once "../composables/db.php";
 
 session_start();
 
-// Überprüfe, ob der Benutzer eingeloggt ist
+// Überprüfen Sie, ob der Benutzer eingeloggt ist
 if (!isset($_SESSION['username'])) {
     header('Location: start.php');
     exit();
@@ -15,14 +15,53 @@ $userid = $_SESSION['userid'];
 
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
 if (isset($_POST['new_chat'])) {
-
     // Füge den neuen Chat zur Datenbank hinzu
     $stmt = db()->prepare('INSERT INTO chat_records (user_id, title) VALUES (:userid, "new chat")');
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
     $stmt->execute();
 
-    // Nach dem Erstellen des Chats Seite neu laden, um die Änderung anzuzeigen
-    header('Location: chat.php');
+    // Hole die ID des neu erstellten Chats
+    $chat_id = db()->lastInsertId();
+
+    // Nach dem Erstellen des Chats zur neuen Chat-Seite umleiten
+    header('Location: chat.php?chat_id=' . $chat_id . '&user_id=' . $userid);
+    exit();
+}
+
+// Prüfe, ob der Button "Löschen" gedrückt wurde und die chat_id gesetzt ist
+if (isset($_POST['delete_chat']) && isset($_POST['chat_id'])) {
+    $chat_id = $_POST['chat_id'];
+
+    // Überprüfen, ob der Chat dem Benutzer gehört und existiert
+    try {
+        // Check if the chat exists and belongs to the user
+        $chat_stmt = db()->prepare('SELECT id FROM chat_records WHERE user_id = :userid AND id = :chatid');
+        $chat_stmt->bindValue(':userid', $userid);
+        $chat_stmt->bindValue(':chatid', $chat_id);
+        $chat_stmt->execute();
+        $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (count($chats) == 0) {
+            throw new Exception("You do not have permission to delete this chat.");
+        }
+
+        // Delete associated messages
+        $message_stmt = db()->prepare('DELETE FROM messages WHERE chat_id = :chatid');
+        $message_stmt->bindValue(':chatid', $chat_id);
+        $message_stmt->execute();
+
+        // Delete the chat itself
+        $chat_delete_stmt = db()->prepare('DELETE FROM chat_records WHERE id = :chatid');
+        $chat_delete_stmt->bindValue(':chatid', $chat_id);
+        $chat_delete_stmt->execute();
+    } catch (Exception $e) {
+        // Log errors and redirect to an error page
+        error_log("Error: " . $e->getMessage());
+        header('Location: error.php');
+        exit();
+    }
+
+    // Nach dem Löschen des Chats Seite neu laden und zu index.php umleiten
+    header('Location: index.php');
     exit();
 }
 
@@ -60,17 +99,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .container {
             margin-top: 20px;
-        }
-
-        .sidebar {
-            background: #343a40;
-            color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .sidebar h3 {
-            color: #f8f9fa;
         }
 
         .main-content {
@@ -138,6 +166,11 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #343a40;
         }
 
+        .chat-card .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
         .chat-card button {
             background: #007bff;
             color: #ffffff;
@@ -151,14 +184,30 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             background: #0056b3;
         }
 
-        .btn-success {
-            background: #28a745;
+        .btn-delete {
+            background: #dc3545;
+            color: #ffffff;
             border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
             transition: background 0.3s;
         }
 
-        .btn-success:hover {
-            background: #218838;
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-new-chat {
+            background: #dc3545;
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            transition: background 0.3s;
+        }
+
+        .btn-new-chat:hover {
+            background: #c82333;
         }
 
         .text-center {
@@ -172,62 +221,65 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .search-bar {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">Main Page</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Willkommen, <?php echo htmlspecialchars($username); ?>!</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="btn btn-sm btn-outline-danger" href="logout.php">Logout</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="sidebar">
-                    <h3>Willkommen, <?php echo htmlspecialchars($username); ?>!</h3>
-                    <p>Dies ist eine geschützte Seite, nur für eingeloggte Benutzer.</p>
-                    <form method="POST">
-                        <button type="submit" name="new_chat" class="btn btn-success w-100">Neuer Chat</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-9">
-                <div class="main-content">
-                    <div class="search-bar">
-                        <input type="text" class="form-control" placeholder="Suche nach Chats...">
-                    </div>
-                    <h3 class="text-center"><i class="fas fa-comments icon"></i>Deine Chats</h3>
-                    <div class="chats-container mt-3">
-                        <?php if (empty($chats)): ?>
-                            <p class="text-center">Keine Chats vorhanden.</p>
-                        <?php else: ?>
-                            <?php foreach ($chats as $chat): ?>
-                                <div class="chat-card">
-                                    <h5><?= htmlspecialchars($chat["title"]); ?></h5>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-content text-center">
+                <form method="POST">
+                    <button type="submit" name="new_chat" class="btn btn-new-chat">Neuer Chat</button>
+                </form>
+                <h3 class="text-center mt-4"><i class="fas fa-comments icon"></i>Deine Chats</h3>
+                <div class="chats-container mt-3">
+                    <?php if (empty($chats)): ?>
+                        <p class="text-center">Keine Chats vorhanden.</p>
+                    <?php else: ?>
+                        <?php foreach ($chats as $chat): ?>
+                            <div class="chat-card">
+                                <h5><?= htmlspecialchars($chat["title"]); ?></h5>
+                                <div class="btn-group">
                                     <form action="./chat.php" method="get">
                                         <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
                                         <input type="hidden" name="user_id" value="<?= $_SESSION['userid'] ?>">
                                         <button type="submit">öffnen</button>
                                     </form>
+                                    <form method="POST">
+                                        <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
+                                        <button type="submit" name="delete_chat" class="btn btn-delete">Löschen</button>
+                                    </form>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </body>
 
 </html>
