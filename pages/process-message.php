@@ -17,7 +17,7 @@ if ($chatid) {
 }
 
 $body = [
-    'model' => 'llava',
+    'model' => 'llava-phi3',
     'stream' => false,
     'messages' => []
 ];

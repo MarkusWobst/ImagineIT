@@ -33,7 +33,7 @@ try {
 $messages = [];
 if (isset($_GET['chat_id'])) {
     $chat = db()->query("SELECT * FROM `chat_records` WHERE `id` = '{$_GET['chat_id']}'")->fetch();
-    $messages = db()->query("SELECT * FROM `messages` WHERE `id` = '{$_GET['chat_id']}' ORDER BY created_at")->fetchAll();
+    $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at DESC")->fetchAll();
 }
 
 ?>
@@ -55,7 +55,7 @@ if (isset($_GET['chat_id'])) {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            /* height: 100vh; */
             margin: 0;
         }
 
@@ -66,7 +66,7 @@ if (isset($_GET['chat_id'])) {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 80%;
-            max-width: 600px;
+            /* max-width: 600px; */
         }
 
         .container h1 {
@@ -96,7 +96,7 @@ if (isset($_GET['chat_id'])) {
         .chat-box {
             border: 1px solid #ddd;
             padding: 10px;
-            height: 300px;
+            /* height: 300px; */
             overflow-y: scroll;
             margin-bottom: 10px;
             width: 100%;
@@ -142,6 +142,64 @@ if (isset($_GET['chat_id'])) {
         .input-box label:hover {
             background-color: #218838;
         }
+
+        .chat-history {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-history ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-history li {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: flex-start;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chat-history .user-message {
+            flex-direction: row;
+        }
+
+        .chat-history .user-message .content {
+            background-color: #e6f2ff;
+            color: #007bff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+
+        .chat-history .assistant-message .content {
+            background-color: #e6f9e6;
+            color: #28b463;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+
+        .chat-history .timestamp {
+            display: block;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .chat-history .user-text {
+            color: #007bff;
+            text-align: left;
+            margin-right: 20%;
+        }
+
+        .chat-history .assistant-text {
+            color: #28b463;
+            text-align: right;
+            margin-left: 20%;
+        }
     </style>
 </head>
 
@@ -153,19 +211,7 @@ if (isset($_GET['chat_id'])) {
                     <?= $chat['id'] ?>
                 </h5>
 
-                <?php foreach ($messages as $message) { ?>
-                    <div
-                        class="card mb-3 w-75 <?= $message['role'] === 'user' ? 'align-self-end bg-success-subtle' : 'bg-info-subtle' ?>">
-                        <div class="card-body">
-                            <p class="card-text m-0">
-                                <?= $message['content'] ?>
-                            </p>
-                            <p class="m-0 text-end text-secondary" style="font-size: 10pt">
-                                <?= $message['created_at'] ?>
-                            </p>
-                        </div>
-                    </div>
-                <?php } ?>
+
             </div>
 
             <div class="card-footer">
@@ -180,6 +226,18 @@ if (isset($_GET['chat_id'])) {
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
                     </div>
                 </form>
+            </div>
+            <div class="chat-history">
+                <h5>Chat History</h5>
+                <ul>
+                    <?php foreach ($messages as $message) { ?>
+                        <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
+                            <span class="content <?= $message['role'] === 'user' ? 'user-text' : 'assistant-text' ?>">
+                                <?= $message['content'] ?>
+                            </span>
+                        </li>
+                    <?php } ?>
+                </ul>
             </div>
         </div>
     </div>
