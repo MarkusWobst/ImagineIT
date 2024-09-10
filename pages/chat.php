@@ -26,7 +26,6 @@ try {
     var_dump($chatid);
     die;
     header('Location: logout.php');
-
     session_abort();
 }
 
@@ -44,13 +43,10 @@ if (isset($_GET['chat_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Id:
-        <?= $chatid ?>
-    </title>
+    <title>Chat Id: <?= $chatid ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            /* background: url('../pictures/Freakbob.png') no-repeat center center fixed; */
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -204,24 +200,22 @@ if (isset($_GET['chat_id'])) {
 </head>
 
 <body>
-    <div class="container py-4 flex-grow-1">
-        <div class="card w-100 h-100">
-            <div class="card-body d-flex flex-column h-100">
-                <h5 class="card-title">
-                    <?= $chat['id'] ?>
-                </h5>
+<div class="container py-4 flex-grow-1">
+    <div class="card w-100 h-100">
+        <div class="card-body d-flex flex-column h-100">
+            <h5 class="card-title"><?= $chat['id'] ?></h5>
 
 
             </div>
 
-            <div class="card-footer">
-                <form action="/process-message.php" method="post">
-                    <?php if ($chatid) { ?>
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                    <?php } ?>
+        <div class="card-footer">
+            <form action="/process-message.php" method="post">
+                <?php if ($chatid) { ?>
+                    <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                <?php } ?>
 
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
 
                         <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Senden</button>
                     </div>
