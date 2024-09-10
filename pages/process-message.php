@@ -26,16 +26,25 @@ foreach ($messages as $message) {
     $body['messages'][] = [
         'role' => $message['role'],
         'content' => $message['content'],
+        'images' => $message['images'] ?? NULL, 
     ];
 }
+
+// <form method="post" enctype="multipart/form-data">
+//     <input type="file" name="image">
+//     <input type="submit" name="submit">
+// </form>
+
+$imagestring = base64_encode(file_get_contents($_FILES["image"]["tmp_name"]));
 
 $body['messages'][] = [
     'role' => 'user',
     'content' => $_POST['message'],
+    'images' => [$imagestring],
 ];
 
 $content = SQLite3::escapeString($_POST['message']);
-$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP)");
+$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestring}')");
 
 $ch = curl_init(); // such as http://example.com/example.xml
 curl_setopt_array($ch, [
