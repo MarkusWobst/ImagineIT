@@ -38,9 +38,6 @@ switch ($ai_type) {
     case 'storyteller':
         $system_prompt .= "a Storyteller AI. Please craft engaging and captivating stories.";
         break;
-    case 'image_generator':
-        $system_prompt .= "an Image Generator AI. Please describe images or generate image concepts.";
-        break;
     case 'picture_to_text':
         $system_prompt .= "a Picture to Text AI. Please convert visuals into textual descriptions.";
         break;
@@ -128,14 +125,10 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         }
 
         .user-message {
-            display: flex;
+            display: -webkit-box;  /* For older Safari and iOS browsers */
+            display: -ms-flexbox;  /* For Internet Explorer 10 */
+            display: flex;  /* Standard syntax */
             justify-content: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .assistant-message {
-            display: flex;
-            justify-content: flex-start;
             margin-bottom: 10px;
         }
 
@@ -163,15 +156,9 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
 
         .input-group input[type="file"] {
             position: absolute;
-            display: hidden;
             opacity: 0;
             cursor: default;
             pointer-events: none;
-        }
-
-        .dowload-icon {
-            padding-left: 10px;
-            padding-right: 10px;
         }
 
         .btn-send {
@@ -267,7 +254,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 </li>
                             <?php } ?>
                         <?php } else { ?>
-                            <li>No messages found.</li>
+                            <li>Sende eine Nachricht um zu Starten</li>
                         <?php } ?>
                     </ul>
                 </div>
@@ -276,7 +263,9 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<?php
+echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>';
+?>
 
 </body>
 
