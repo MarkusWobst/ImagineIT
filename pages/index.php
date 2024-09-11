@@ -14,10 +14,15 @@ $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
-if (isset($_POST['new_chat'])) {
+if (isset($_POST['create_chat'])) {
+    $chat_title = $_POST['chat_title'];
+    $ai_type = $_POST['ai_type'];
+
     // Füge den neuen Chat zur Datenbank hinzu
-    $stmt = db()->prepare('INSERT INTO chat_records (user_id, title) VALUES (:userid, "new chat")');
+    $stmt = db()->prepare('INSERT INTO chat_records (user_id, title, ai_type) VALUES (:userid, :title, :ai_type)');
     $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+    $stmt->bindValue(':title', $chat_title, PDO::PARAM_STR);
+    $stmt->bindValue(':ai_type', $ai_type, PDO::PARAM_STR);
     $stmt->execute();
 
     // Hole die ID des neu erstellten Chats
@@ -268,9 +273,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="text" name="search" class="form-control" placeholder="Suche nach Chats" value="<?= htmlspecialchars($search_query); ?>">
                         <button type="submit" class="btn btn-primary">Suchen</button>
                     </form>
-                    <form method="POST">
-                        <button type="submit" name="new_chat" class="btn btn-new-chat">Neuer Chat</button>
-                    </form>
+                    <button type="button" class="btn btn-new-chat" data-bs-toggle="modal" data-bs-target="#newChatModal">Neuer Chat</button>
                 </div>
                 <h3 class="text-center mt-4"><i class="fas fa-comments icon"></i>Deine Chats</h3>
                 <div class="chats-container mt-3">
@@ -300,6 +303,36 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Neuer Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="chat_title" class="form-label">Chat Titel</label>
+                        <input type="text" name="chat_title" class="form-control" id="chat_title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ai_type" class="form-label">AI-Typ</label>
+                        <select class="form-select" name="ai_type" id="ai_type" required>
+                            <option value="storyteller">Storyteller</option>
+                            <option value="image_generator">Image Generator</option>
+                            <option value="picture_to_text">Picture to Text</option>
+                            <option value="song_writer">Song Writer</option>
+                        </select>
+                    </div>
+                    <button type="submit" name="create_chat" class="btn btn-primary">Chat Erstellen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.getElementById('welcomeButton').addEventListener('click', function () {
         var dropdown = document.getElementById('settingsDropdown');
@@ -310,6 +343,9 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
