@@ -29,9 +29,6 @@ switch ($ai_type) {
     case 'storyteller':
         $system_prompt .= "a Storyteller AI. Please craft engaging and captivating stories.";
         break;
-    case 'image_generator':
-        $system_prompt .= "an Image Generator AI. Please describe images or generate image concepts.";
-        break;
     case 'picture_to_text':
         $system_prompt .= "a Picture to Text AI. Please convert visuals into textual descriptions.";
         break;
@@ -93,7 +90,6 @@ try {
         'content' => $_POST['message'],
         'images' => [$imagestring],
     ];
-
 
 } catch (\Throwable $th) {
     $fileattached = false;
