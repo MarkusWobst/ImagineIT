@@ -93,6 +93,19 @@ if (isset($_GET['chat_id'])) {
             position: sticky;
             bottom: 0;
         }
+
+        .input-group input[type="file"] {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .dowload-icon {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
     </style>
 </head>
 
@@ -114,9 +127,10 @@ if (isset($_GET['chat_id'])) {
                     <div class="input-group">
                         <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
                         <label for="file-input">
-                            <i class="bi bi-upload fs-4"> </i>
+                            <i class="bi bi-upload fs-4 dowload-icon"> </i>
                         </label>
-                        <input type="file" class="form-control invisible input-sm" name="image" id="file-input">
+                        <input type="file" class="form-control input-sm" name="image"
+                            id="file-input">
                         <!-- <button class="btn btn-primary" type="file">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-upload" viewBox="0 0 16 16">
