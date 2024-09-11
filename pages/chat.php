@@ -155,7 +155,7 @@ if (isset($_GET['chat_id'])) {
 
         .input-group input[type="file"] {
             position: absolute;
-            left: -9999px;
+            display: hidden;
             opacity: 0;
             cursor: default;
             pointer-events: none;
@@ -240,9 +240,6 @@ if (isset($_GET['chat_id'])) {
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">
                             <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <label for="file-input">
-                                <i class="bi bi-upload fs-4 dowload-icon"> </i>
-                            </label>
                             <input type="file" class="form-control input-sm" name="image" id="file-input">
                             <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
                             <button class="btn btn-send" type="submit">Senden</button>
@@ -264,21 +261,6 @@ if (isset($_GET['chat_id'])) {
                             <li>No messages found.</li>
                         <?php } ?>
                     </ul>
-                </div>
-
-                <div class="card-footer">
-                    <form action="process-message.php" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                        <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <label for="file-input">
-                                <i class="bi bi-upload fs-4 upload-icon"> </i>
-                            </label>
-                            <input type="file" class="form-control input-sm" name="image" id="file-input">
-                            <button class="btn btn-send" type="submit">Senden</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
