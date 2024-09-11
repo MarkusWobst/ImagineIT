@@ -119,7 +119,7 @@ if (isset($_GET['chat_id'])) {
             </div>
 
             <div class="card-footer">
-                <form action="/process-message.php" method="post" enctype="multipart/form-data">
+                <form action="process-message.php" method="post" enctype="multipart/form-data">
                     <?php if ($chatid) { ?>
                         <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                     <?php } ?>
