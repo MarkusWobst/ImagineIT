@@ -128,14 +128,10 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         }
 
         .user-message {
-            display: flex;
+            display: -webkit-box;  /* For older Safari and iOS browsers */
+            display: -ms-flexbox;  /* For Internet Explorer 10 */
+            display: flex;  /* Standard syntax */
             justify-content: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .assistant-message {
-            display: flex;
-            justify-content: flex-start;
             margin-bottom: 10px;
         }
 
@@ -166,11 +162,6 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
             opacity: 0;
             cursor: default;
             pointer-events: none;
-        }
-
-        .download-icon {
-            padding-left: 10px;
-            padding-right: 10px;
         }
 
         .btn-send {
@@ -275,7 +266,9 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<?php
+echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>';
+?>
 
 </body>
 
