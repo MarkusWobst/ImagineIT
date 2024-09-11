@@ -22,10 +22,10 @@ $imagestring = NULL;
 try {
     $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
 
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $imageFileType = (mime_content_type($_FILES["image"]["tmp_name"]));
 
     // Check if file already exists
-    if (!file_exists($target_file)) {
+    if (!file_exists($_FILES["image"]["tmp_name"])) {
         throw new Exception("no file uoloaded --> use normal chat");
     }
 
@@ -36,9 +36,9 @@ try {
 
     // Allow certain file formats
     if (
-        $imageFileType != "jpg"
-        && $imageFileType != "png"
-        && $imageFileType != "jpeg"
+        $imageFileType != "image/jpg"
+        && $imageFileType != "image/png"
+        && $imageFileType != "image/jpeg"
     ) {
         throw new Exception("file isnt the right format");
     }
@@ -65,8 +65,8 @@ try {
         'images' => [$imagestring],
     ];
 
-} catch (\Throwable $th) {
 
+} catch (\Throwable $th) {
     $fileattached = false;
 
     $body = [
