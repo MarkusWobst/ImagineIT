@@ -156,17 +156,21 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .chat-card .btn-group {
-            display: flex;
-            gap: 10px;
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center; /* Center align items vertically */
         }
 
         .chat-card button {
-            background: #007bff;
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            transition: background 0.3s;
+        background: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 40px; /* Make the button wider */
+        transition: background 0.3s;
+        flex-grow: 1; /* Allow the button to grow and take available space */
+        text-align: center; /* Center the text */
         }
 
         .chat-card button:hover {
@@ -174,16 +178,26 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .btn-delete {
-            background: #dc3545;
-            color: #ffffff;
+            background: none;
+            color: #dc3545;
             border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            transition: background 0.3s;
+            padding: 0;
+            font-size: 1rem;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            height: 42px; /* Slightly higher than before */
+            width: 35px; /* Keep the width as is */
+            justify-content: center;
+            margin-left: auto; /* Align to the right */
+        }
+
+        .btn-delete i {
+            font-size: 1.5rem;
         }
 
         .btn-delete:hover {
-            background: #c82333;
+            color: #c82333;
         }
 
         .btn-new-chat {
@@ -271,7 +285,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="search-bar">
                     <form method="GET" class="d-flex w-100">
                         <input type="text" name="search" class="form-control" placeholder="Suche nach Chats" value="<?= htmlspecialchars($search_query); ?>">
-                        <button type="submit" class="btn btn-primary">Suchen</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
                     </form>
                     <button type="button" class="btn btn-new-chat" data-bs-toggle="modal" data-bs-target="#newChatModal">Neuer Chat</button>
                 </div>
@@ -291,7 +305,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </form>
                                     <form method="POST">
                                         <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                        <button type="submit" name="delete_chat" class="btn btn-delete">Löschen</button>
+                                        <button type="submit" name="delete_chat" class="btn btn-delete"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </div>
                             </div>
