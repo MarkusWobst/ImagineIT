@@ -49,11 +49,12 @@ $imagestring = NULL;
 
 try {
     $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    $imageFileType = (mime_content_type($_FILES["image"]["tmp_name"]));
 
     // Check if file already exists
-    if (!file_exists($target_file)) {
-        throw new Exception("no file uploaded --> use normal chat");
+    if (!file_exists($_FILES["image"]["tmp_name"])) {
+        throw new Exception("no file uoloaded --> use normal chat");
     }
 
     // Check file size
@@ -62,8 +63,12 @@ try {
     }
 
     // Allow certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
-        throw new Exception("file isn't the right format");
+    if (
+        $imageFileType != "image/jpg"
+        && $imageFileType != "image/png"
+        && $imageFileType != "image/jpeg"
+    ) {
+        throw new Exception("file isnt the right format");
     }
 
     $imagestring = base64_encode($target_file);
@@ -89,8 +94,8 @@ try {
         'images' => [$imagestring],
     ];
 
-} catch (\Throwable $th) {
 
+} catch (\Throwable $th) {
     $fileattached = false;
 
     $body = [
