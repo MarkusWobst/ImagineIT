@@ -58,6 +58,15 @@ if (isset($_GET['chat_id'])) {
         $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at DESC")->fetchAll();
     }
 }
+
+// Handle dropdown toggle
+if (isset($_POST['toggle_dropdown'])) {
+    $_SESSION['dropdown_visible'] = !isset($_SESSION['dropdown_visible']) || !$_SESSION['dropdown_visible'];
+}
+
+// Determine dropdown visibility
+$dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_visible'];
+
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +79,6 @@ if (isset($_GET['chat_id'])) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
@@ -161,10 +169,9 @@ if (isset($_GET['chat_id'])) {
             pointer-events: none;
         }
 
-        .upload-icon {
+        .dowload-icon {
             padding-left: 10px;
             padding-right: 10px;
-            cursor: pointer
         }
 
         .btn-send {
@@ -215,10 +222,12 @@ if (isset($_GET['chat_id'])) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
-                    <button class="settings-button" id="welcomeButton">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                    <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
+                    <form method="POST" style="display: inline;">
+                        <button class="settings-button" name="toggle_dropdown">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                    </form>
+                    <div class="dropdown-menu" id="settingsDropdown" style="display: <?= $dropdown_visible ? 'block' : 'none' ?>; position: absolute; top: 60px; right: 20px;">
                         <a class="dropdown-item" href="index.php">Home</a>
                         <a class="dropdown-item" href="settings.php">Einstellungen</a>
                         <a class="dropdown-item" href="help.php">Hilfe</a>
@@ -265,36 +274,10 @@ if (isset($_GET['chat_id'])) {
                         <?php } ?>
                     </ul>
                 </div>
-
-                <div class="card-footer">
-                    <form action="process-message.php" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                        <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <label for="file-input">
-                                <i class="bi bi-upload fs-4 upload-icon"> </i>
-                            </label>
-                            <input type="file" class="form-control input-sm" name="image" id="file-input">
-                            <button class="btn btn-send" type="submit">Senden</button>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    document.getElementById('welcomeButton').addEventListener('click', function () {
-        var dropdown = document.getElementById('settingsDropdown');
-        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-            dropdown.style.display = 'block';
-        } else {
-            dropdown.style.display = 'none';
-        }
-    });
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
