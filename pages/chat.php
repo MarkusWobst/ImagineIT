@@ -267,7 +267,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 </li>
                             <?php } ?>
                         <?php } else { ?>
-                            <li>No messages found.</li>
+                            <li>Sende eine Nachricht um zu Starten</li>
                         <?php } ?>
                     </ul>
                 </div>
