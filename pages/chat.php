@@ -13,13 +13,18 @@ if (!isset($_SESSION['username'])) {
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
+$ai_type = "";
+$messages = [];
+
 try {
     $chat_stmt = db()->prepare('SELECT id, ai_type FROM chat_records WHERE user_id = :userid AND id = :chatid');
     $chat_stmt->bindValue(':userid', $userid);
     $chat_stmt->bindValue(':chatid', $chatid);
     $chat_stmt->execute();
     $chat = $chat_stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$chat) {
+    if ($chat) {
+        $ai_type = $chat['ai_type'];
+    } else {
         throw new Exception("you shall not pass!!!");
     }
 } catch (\Throwable $th) {
@@ -28,9 +33,7 @@ try {
 }
 
 // Generate system prompt based on AI type
-$ai_type = $chat['ai_type'];
 $system_prompt = "You are ";
-
 switch ($ai_type) {
     case 'storyteller':
         $system_prompt .= "a Storyteller AI. Please craft engaging and captivating stories.";
@@ -49,12 +52,12 @@ switch ($ai_type) {
         break;
 }
 
-$messages = [];
 if (isset($_GET['chat_id'])) {
     $chat = db()->query("SELECT * FROM `chat_records` WHERE `id` = '{$_GET['chat_id']}'")->fetch();
-    $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at DESC")->fetchAll();
+    if ($chat) {
+        $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$_GET['chat_id']}' ORDER BY created_at DESC")->fetchAll();
+    }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -132,9 +135,12 @@ if (isset($_GET['chat_id'])) {
 <body>
 <div class="container py-4">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body d-flex justify-content-between align-items-center">
             <h5 class="card-title">Chat Type: <?= htmlspecialchars($ai_type) ?></h5>
             <input type="hidden" id="chat_id" value="<?= $chatid ?>">
+            <form action="index.php" method="get">
+                <button type="submit" class="btn btn-primary">Home</button>
+            </form>
         </div>
 
         <div class="card-footer">
@@ -155,16 +161,19 @@ if (isset($_GET['chat_id'])) {
         <div class="chat-history">
             <h5>Chat History</h5>
             <ul class="list-unstyled">
-                <?php foreach ($messages as $message) { ?>
-                    <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
-                        <div class="message-content">
-                            <?= htmlspecialchars($message['content']) ?>
-                        </div>
-                    </li>
+                <?php if (!empty($messages)) { ?>
+                    <?php foreach ($messages as $message) { ?>
+                        <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
+                            <div class="message-content">
+                                <?= htmlspecialchars($message['content']) ?>
+                            </div>
+                        </li>
+                    <?php } ?>
+                <?php } else { ?>
+                    <li>No messages found.</li>
                 <?php } ?>
             </ul>
         </div>
-
     </div>
 </div>
 
