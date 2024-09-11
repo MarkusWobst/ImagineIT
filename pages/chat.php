@@ -69,16 +69,42 @@ if (isset($_GET['chat_id'])) {
     <title>Chat Type: <?= htmlspecialchars($ai_type) ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
-
         body {
-            background-size: cover;
-            margin: 0;
+            background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
+            color: #343a40;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .navbar {
+            background: #343a40;
+        }
+
+        .navbar-brand, .nav-link, .btn-outline-danger {
+            color: #f8f9fa !important;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .main-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content h3 {
+            position: relative;
+            z-index: 1;
         }
 
         .chat-history {
-            max-height: 80vh;
+            max-height: 60vh;
             overflow-y: auto;
             padding: 20px;
             border-top: 1px solid #ddd;
@@ -103,13 +129,13 @@ if (isset($_GET['chat_id'])) {
         }
 
         .user-message .message-content {
-            background-color: #e6f2ff;
-            color: #007bff;
+            background-color: #d1e7ff;
+            color: #004085;
         }
 
         .assistant-message .message-content {
-            background-color: #e6f9e6;
-            color: #28b463;
+            background-color: #d4edda;
+            color: #155724;
         }
 
         .input-group {
@@ -129,55 +155,108 @@ if (isset($_GET['chat_id'])) {
             padding-left: 10px;
             padding-right: 10px;
         }
+
+        .btn-send {
+            background: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background 0.3s;
+        }
+
+        .btn-send:hover {
+            background: #0056b3;
+        }
+
+        .dropdown-menu .dropdown-item.logout {
+            color: red;
+        }
+
+        .settings-button {
+            background: none;
+            border: none;
+            color: #f8f9fa;
+            font-size: 20px;
+        }
     </style>
 </head>
 
 <body>
-<div class="container py-4">
-    <div class="card">
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <h5 class="card-title">Chat Type: <?= htmlspecialchars($ai_type) ?></h5>
-            <input type="hidden" id="chat_id" value="<?= $chatid ?>">
-            <form action="index.php" method="get">
-                <button type="submit" class="btn btn-primary">Home</button>
-            </form>
-        </div>
-
-        <div class="card-footer">
-            <form action="process-message.php" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                    <label for="file-input">
-                        <i class="bi bi-upload fs-4 dowload-icon"> </i>
-                    </label>
-                    <input type="file" class="form-control input-sm" name="image" id="file-input">
-                    <button class="btn btn-primary" type="submit">Senden</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="chat-history">
-            <h5>Chat History</h5>
-            <ul class="list-unstyled">
-                <?php if (!empty($messages)) { ?>
-                    <?php foreach ($messages as $message) { ?>
-                        <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
-                            <div class="message-content">
-                                <?= htmlspecialchars($message['content']) ?>
-                            </div>
-                        </li>
-                    <?php } ?>
-                <?php } else { ?>
-                    <li>No messages found.</li>
-                <?php } ?>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Chat Type: <?= htmlspecialchars($ai_type) ?></a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <button class="settings-button" id="welcomeButton">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
+                        <a class="dropdown-item" href="index.php">Home</a>
+                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
+                        <a class="dropdown-item" href="help.php">Hilfe</a>
+                        <a class="dropdown-item logout" href="logout.php">Logout</a>
+                    </div>
+                </li>
             </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-content">
+                <div class="chat-history">
+                    <h5>Chat History</h5>
+                    <ul class="list-unstyled">
+                        <?php if (!empty($messages)) { ?>
+                            <?php foreach ($messages as $message) { ?>
+                                <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
+                                    <div class="message-content">
+                                        <?= htmlspecialchars($message['content']) ?>
+                                    </div>
+                                </li>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <li>No messages found.</li>
+                        <?php } ?>
+                    </ul>
+                </div>
+
+                <div class="card-footer">
+                    <form action="process-message.php" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                        <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+                            <label for="file-input">
+                                <i class="bi bi-upload fs-4 dowload-icon"> </i>
+                            </label>
+                            <input type="file" class="form-control input-sm" name="image" id="file-input">
+                            <button class="btn btn-send" type="submit">Senden</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+    document.getElementById('welcomeButton').addEventListener('click', function () {
+        var dropdown = document.getElementById('settingsDropdown');
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>
