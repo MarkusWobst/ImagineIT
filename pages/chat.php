@@ -163,13 +163,12 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
 
         .input-group input[type="file"] {
             position: absolute;
-            display: hidden;
             opacity: 0;
             cursor: default;
             pointer-events: none;
         }
 
-        .dowload-icon {
+        .download-icon {
             padding-left: 10px;
             padding-right: 10px;
         }
