@@ -251,12 +251,12 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <button class="settings-button" id="welcomeButton">
-                        <i class="fa-solid fa-gear"></i>
+                        <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
                         <a class="dropdown-item" href="settings.php">Einstellungen</a>
                         <a class="dropdown-item" href="help.php">Hilfe</a>
-                        <a class="dropdown-item" href="logout.php">Logout</a>
+                        <a class="dropdown-item text-danger" href="logout.php">Logout</a>
                     </div>
                 </li>
             </ul>
