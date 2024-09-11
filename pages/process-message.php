@@ -77,7 +77,7 @@ try {
         'model' => 'llava-phi3',
         'stream' => false,
         'messages' => [],
-        'prompt' => $system_prompt // Add system prompt here
+        'system' => $system_prompt // Add system prompt here
     ];
 
     foreach ($messages as $message) {
@@ -101,7 +101,7 @@ try {
     $body = [
         'model' => 'llava-phi3',
         'stream' => false,
-        'prompt' => $system_prompt // Add system prompt here
+        'system' => $system_prompt // Add system prompt here
     ];
 
     foreach ($messages as $message) {

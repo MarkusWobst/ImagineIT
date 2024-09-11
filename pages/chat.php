@@ -70,6 +70,7 @@ if (isset($_GET['chat_id'])) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
             background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
@@ -151,9 +152,10 @@ if (isset($_GET['chat_id'])) {
             pointer-events: none;
         }
 
-        .dowload-icon {
+        .upload-icon {
             padding-left: 10px;
             padding-right: 10px;
+            cursor: pointer
         }
 
         .btn-send {
@@ -232,7 +234,7 @@ if (isset($_GET['chat_id'])) {
                         <div class="input-group">
                             <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
                             <label for="file-input">
-                                <i class="bi bi-upload fs-4 dowload-icon"> </i>
+                                <i class="bi bi-upload fs-4 upload-icon"> </i>
                             </label>
                             <input type="file" class="form-control input-sm" name="image" id="file-input">
                             <button class="btn btn-send" type="submit">Senden</button>
