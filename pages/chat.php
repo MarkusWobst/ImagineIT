@@ -75,6 +75,9 @@ if (isset($_GET['chat_id'])) {
             background: linear-gradient(to right, #2c3e50 0%, #4ca1af 100%);
             color: #343a40;
             font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .navbar {
@@ -86,6 +89,9 @@ if (isset($_GET['chat_id'])) {
         }
 
         .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             margin-top: 20px;
         }
 
@@ -94,7 +100,9 @@ if (isset($_GET['chat_id'])) {
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
             overflow: hidden;
         }
 
@@ -104,7 +112,7 @@ if (isset($_GET['chat_id'])) {
         }
 
         .chat-history {
-            max-height: 60vh;
+            flex: 1;
             overflow-y: auto;
             padding: 20px;
             border-top: 1px solid #ddd;
@@ -139,8 +147,9 @@ if (isset($_GET['chat_id'])) {
         }
 
         .input-group {
-            position: sticky;
-            bottom: 0;
+            background: #ffffff;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
 
         .input-group input[type="file"] {
@@ -163,10 +172,25 @@ if (isset($_GET['chat_id'])) {
             border-radius: 5px;
             padding: 10px 20px;
             transition: background 0.3s;
+            margin-left: 10px; /* Add space between the buttons */
         }
 
         .btn-send:hover {
             background: #0056b3;
+        }
+
+        .btn-upload {
+            background: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+
+        .btn-upload:hover {
+            background: #218838;
         }
 
         .dropdown-menu .dropdown-item.logout {
@@ -205,9 +229,24 @@ if (isset($_GET['chat_id'])) {
 </nav>
 
 <div class="container">
-    <div class="row">
+    <div class="row flex-grow-1">
         <div class="col-md-12">
             <div class="main-content">
+                <div class="card-footer">
+                    <form action="process-message.php" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                        <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+                            <label for="file-input">
+                                <i class="bi bi-upload fs-4 dowload-icon"> </i>
+                            </label>
+                            <input type="file" class="form-control input-sm" name="image" id="file-input">
+                            <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
+                            <button class="btn btn-send" type="submit">Senden</button>
+                        </div>
+                    </form>
+                </div>
                 <div class="chat-history">
                     <h5>Chat History</h5>
                     <ul class="list-unstyled">
@@ -223,21 +262,6 @@ if (isset($_GET['chat_id'])) {
                             <li>No messages found.</li>
                         <?php } ?>
                     </ul>
-                </div>
-
-                <div class="card-footer">
-                    <form action="process-message.php" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                        <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <label for="file-input">
-                                <i class="bi bi-upload fs-4 dowload-icon"> </i>
-                            </label>
-                            <input type="file" class="form-control input-sm" name="image" id="file-input">
-                            <button class="btn btn-send" type="submit">Senden</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
