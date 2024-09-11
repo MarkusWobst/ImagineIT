@@ -16,44 +16,96 @@ if ($chatid) {
     $chatid = db()->lastInsertId();
 }
 
-$body = [
-    'model' => 'llava-phi3',
-    'stream' => false,
-    'messages' => []
-];
+// file input atuff
+$fileattached = true;
+$imagestring = NULL;
+try {
+    $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
 
-foreach ($messages as $message) {
-    $body['messages'][] = [
-        'role' => $message['role'],
-        'content' => $message['content'],
-        'images' => $message['images'] ?? NULL, 
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    // Check if file already exists
+    if (!file_exists($target_file)) {
+        throw new Exception("no file uoloaded --> use normal chat");
+    }
+
+    // Check file size
+    if ($_FILES["image"]["size"] > 5000000) { // 5MB = 5000000
+        throw new Exception("file is too large");
+    }
+
+    // Allow certain file formats
+    if (
+        $imageFileType != "jpg"
+        && $imageFileType != "png"
+        && $imageFileType != "jpeg"
+    ) {
+        throw new Exception("file isnt the right format");
+    }
+
+    $imagestring = base64_encode($target_file);
+
+    $body = [
+        'model' => 'llava-phi3',
+        'stream' => false,
+        'messages' => []
     ];
+
+    foreach ($messages as $message) {
+        $body['messages'][] = [
+            'role' => $message['role'],
+            'content' => $message['content'],
+            'images' => $message['images'],
+        ];
+    }
+
+    $body['messages'][] = [
+        'role' => 'user',
+        'content' => $_POST['message'],
+        'images' => [$imagestring],
+    ];
+
+} catch (\Throwable $th) {
+
+    $fileattached = false;
+
+    $body = [
+        'model' => 'llava-phi3',
+        'stream' => false,
+    ];
+
+    foreach ($messages as $message) {
+        $body['messages'][] = [
+            'role' => $message['role'],
+            'content' => $message['content'],
+        ];
+    }
+
+    $body['messages'][] = [
+        'role' => 'user',
+        'content' => $_POST['message'],
+    ];
+
 }
 
-// <form method="post" enctype="multipart/form-data">
-//     <input type="file" name="image">
-//     <input type="submit" name="submit">
-// </form>
-
-$imagestring = base64_encode(file_get_contents($_FILES["image"]["tmp_name"]));
-
-$body['messages'][] = [
-    'role' => 'user',
-    'content' => $_POST['message'],
-    'images' => [$imagestring],
-];
-
 $content = SQLite3::escapeString($_POST['message']);
-$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestring}')");
+
+$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
+    VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestring}')");
+
+$username = "ollama";
+$password = "ollama-sepe";
+
 
 $ch = curl_init(); // such as http://example.com/example.xml
 curl_setopt_array($ch, [
-    CURLOPT_URL => 'http://localhost:11434/api/chat',
+    CURLOPT_URL => 'https://ollama.programado.de/api/chat',
     CURLOPT_RETURNTRANSFER => true,
     /**
      * Specify POST method
      */
     CURLOPT_POST => true,
+    CURLOPT_USERPWD => "{$username}:{$password}",
 
     /**
      * Specify request content
