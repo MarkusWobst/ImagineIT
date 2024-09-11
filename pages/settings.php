@@ -12,6 +12,13 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
+$show_confirmation = false;
+$error_message = "";
+
+// Handle account deletion request
+if (isset($_POST['request_delete_account'])) {
+    $show_confirmation = true;
+}
 
 // Handle profile update
 if (isset($_POST['update_profile'])) {
@@ -58,18 +65,29 @@ if (isset($_POST['change_password'])) {
     }
 }
 
-// Handle account deletion
+// Handle account deletion confirmation
 if (isset($_POST['delete_account'])) {
-    // Delete user data from the database
-    $stmt = db()->prepare('DELETE FROM users WHERE id = :userid');
-    $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
-    $stmt->execute();
+    $confirmation_phrase = $_POST['confirmation_phrase'];
+    $required_phrase = "DELETE";
 
-    // Destroy the session and redirect to the start page
-    session_destroy();
-    header('Location: start.php');
-    exit();
+    if ($confirmation_phrase !== $required_phrase) {
+        $error_message = "Die Bestätigungsphrase ist falsch. Bitte geben Sie 'DELETE' ein.";
+        $show_confirmation = true;
+    } else {
+        // Delete user data from the database
+        $stmt = db()->prepare('DELETE FROM users WHERE id = :userid');
+        $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Destroy the session and redirect to the start page
+        session_destroy();
+        header('Location: start.php');
+        exit();
+    }
 }
+
+// Pass $show_confirmation value to JavaScript
+echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</script>";
 
 ?>
 
@@ -202,18 +220,37 @@ if (isset($_POST['delete_account'])) {
         .card-body {
             padding: 15px;
         }
-    </style>
-    <script>
-        function validatePassword() {
-            var newPassword = document.getElementById("new_password").value;
-            var confirmPassword = document.getElementById("confirm_password").value;
-            if (newPassword !== confirmPassword) {
-                alert("Die neuen Passwörter stimmen nicht überein.");
-                return false;
-            }
-            return true;
+
+        .overlay-form {
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
         }
-    </script>
+
+        .confirmation-form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #000;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -238,11 +275,12 @@ if (isset($_POST['delete_account'])) {
         <div class="col-md-12">
             <div class="main-content text-center">
                 <h3 class="text-center mt-4"><i class="fas fa-user-cog icon"></i>Einstellungen</h3>
-                <?php if (isset($error_message)): ?>
+                <?php if (!empty($error_message)): ?>
                     <div class="alert alert-danger" role="alert">
                         <?= htmlspecialchars($error_message); ?>
                     </div>
                 <?php endif; ?>
+
                 <div class="form-section">
                     <div class="card">
                         <div class="card-header">
@@ -259,6 +297,7 @@ if (isset($_POST['delete_account'])) {
                         </div>
                     </div>
                 </div>
+
                 <div class="form-section">
                     <div class="card">
                         <div class="card-header">
@@ -283,6 +322,7 @@ if (isset($_POST['delete_account'])) {
                         </div>
                     </div>
                 </div>
+
                 <div class="form-section">
                     <div class="card">
                         <div class="card-header">
@@ -290,16 +330,44 @@ if (isset($_POST['delete_account'])) {
                         </div>
                         <div class="card-body">
                             <form method="POST">
-                                <button type="submit" name="delete_account" class="btn btn-danger">Konto löschen</button>
+                                <button type="submit" name="request_delete_account" class="btn btn-danger">Konto löschen</button>
                             </form>
                         </div>
                     </div>
                 </div>
+
+                <?php if ($show_confirmation): ?>
+                    <div class="overlay-form" id="confirmation-overlay">
+                        <div class="confirmation-form">
+                            <span class="close-btn" id="close-btn">&times;</span>
+                            <h4>Bestätigung erforderlich</h4>
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label for="confirmation_phrase">Bestätigungsphrase eingeben</label>
+                                    <input type="text" id="confirmation_phrase" name="confirmation_phrase" required>
+                                    <small class="form-text text-muted">Bitte geben Sie 'DELETE' ein, um Ihr Konto zu löschen.</small>
+                                </div>
+                                <button type="submit" name="delete_account" class="btn btn-danger">Bestätigen</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (showConfirmation) {
+            document.getElementById('confirmation-overlay').style.display = 'flex';
+        }
 
+        document.getElementById('close-btn').addEventListener('click', function () {
+            document.getElementById('confirmation-overlay').style.display = 'none';
+        });
+    });
+</script>
+
+</body>
 </html>
