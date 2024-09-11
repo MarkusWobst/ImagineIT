@@ -14,17 +14,39 @@ $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
 try {
-    $chat_stmt = db()->prepare('SELECT id FROM chat_records WHERE user_id = :userid AND id = :chatid');
+    $chat_stmt = db()->prepare('SELECT id, ai_type FROM chat_records WHERE user_id = :userid AND id = :chatid');
     $chat_stmt->bindValue(':userid', $userid);
     $chat_stmt->bindValue(':chatid', $chatid);
     $chat_stmt->execute();
-    $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
-    if (count($chats) == 0) {
+    $chat = $chat_stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$chat) {
         throw new Exception("you shall not pass!!!");
     }
 } catch (\Throwable $th) {
     header('Location: logout.php');
     session_abort();
+}
+
+// Generate system prompt based on AI type
+$ai_type = $chat['ai_type'];
+$system_prompt = "You are ";
+
+switch ($ai_type) {
+    case 'storyteller':
+        $system_prompt .= "a Storyteller AI. Please craft engaging and captivating stories.";
+        break;
+    case 'image_generator':
+        $system_prompt .= "an Image Generator AI. Please describe images or generate image concepts.";
+        break;
+    case 'picture_to_text':
+        $system_prompt .= "a Picture to Text AI. Please convert visuals into textual descriptions.";
+        break;
+    case 'song_writer':
+        $system_prompt .= "a Song Writer AI. Please create lyrics and melodies.";
+        break;
+    default:
+        $system_prompt .= "an AI. Please assist with your specific capabilities.";
+        break;
 }
 
 $messages = [];
@@ -41,9 +63,7 @@ if (isset($_GET['chat_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Id:
-        <?= $chatid ?>
-    </title>
+    <title>Chat Type: <?= htmlspecialchars($ai_type) ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -110,49 +130,45 @@ if (isset($_GET['chat_id'])) {
 </head>
 
 <body>
-    <div class="container py-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Chat ID:
-                    <?= $chat['id'] ?>
-                </h5>
-            </div>
-
-            <div class="card-footer">
-                <form action="process-message.php" method="post" enctype="multipart/form-data">
-                    <?php if ($chatid) { ?>
-                        <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
-                    <?php } ?>
-
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                        <label for="file-input">
-                            <i class="bi bi-upload fs-4 dowload-icon"> </i>
-                        </label>
-                        <input type="file" class="form-control input-sm" name="image"
-                            id="file-input">
-                        <button class="btn btn-primary" type="submit">Senden</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="chat-history">
-                <h5>Chat History</h5>
-                <ul class="list-unstyled">
-                    <?php foreach ($messages as $message) { ?>
-                        <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
-                            <div class="message-content">
-                                <?= $message['content'] ?>
-                            </div>
-                        </li>
-                    <?php } ?>
-                </ul>
-            </div>
-
+<div class="container py-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Chat Type: <?= htmlspecialchars($ai_type) ?></h5>
+            <input type="hidden" id="chat_id" value="<?= $chatid ?>">
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">    </script>
+        <div class="card-footer">
+            <form action="process-message.php" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
+                <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
+                    <label for="file-input">
+                        <i class="bi bi-upload fs-4 dowload-icon"> </i>
+                    </label>
+                    <input type="file" class="form-control input-sm" name="image" id="file-input">
+                    <button class="btn btn-primary" type="submit">Senden</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="chat-history">
+            <h5>Chat History</h5>
+            <ul class="list-unstyled">
+                <?php foreach ($messages as $message) { ?>
+                    <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
+                        <div class="message-content">
+                            <?= htmlspecialchars($message['content']) ?>
+                        </div>
+                    </li>
+                <?php } ?>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
