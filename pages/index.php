@@ -167,7 +167,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         color: #ffffff;
         border: none;
         border-radius: 5px;
-        padding: 10px 40px; /* Make the button wider */
+        padding: 10px 30px; /* Make the button wider */
         transition: background 0.3s;
         flex-grow: 1; /* Allow the button to grow and take available space */
         text-align: center; /* Center the text */
@@ -181,13 +181,12 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             background: none;
             color: #dc3545;
             border: none;
-            padding: 0;
             font-size: 1rem;
             transition: color 0.3s;
             display: flex;
             align-items: center;
             height: 42px; /* Slightly higher than before */
-            width: 35px; /* Keep the width as is */
+            width: 10px; /* Keep the width as is */
             justify-content: center;
             margin-left: auto; /* Align to the right */
         }
