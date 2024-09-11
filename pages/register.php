@@ -4,6 +4,7 @@ require_once "../composables/db.php";
 
 session_start();
 $message = '';
+$message_class = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
@@ -13,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Prüfe, ob das Passwort und die Passwortbestätigung übereinstimmen
     if ($password !== $confirm_password) {
         $message = 'Die Passwörter stimmen nicht überein.';
+        $message_class = 'text-danger';
     } else {
 
         // Überprüfe, ob der Benutzername bereits existiert
@@ -23,19 +25,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($user) {
             $message = 'Der Benutzername ist bereits vergeben.';
+            $message_class = 'text-danger';
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             // Füge den neuen Benutzer zur Datenbank hinzu
-            // $stmt = $db->prepare('INSERT INTO users (username, password) VALUES (:username, :password)');
-            // $stmt->bindValue(':username', $username);
-            // $stmt->bindValue(':password', $hashed_password);
-            // $stmt->execute();
+            $stmt = db()->prepare('INSERT INTO users (username, password) VALUES (:username, :password)');
+            $stmt->bindValue(':username', $username);
+            $stmt->bindValue(':password', $hashed_password);
+            $stmt->execute();
 
-            $user = db()->exec("INSERT INTO users ('username', 'password') VALUES ('{$username}', '{$hashed_password}')");
-
-            // Benutzer erfolgreich registriert, leite zur Login-Seite weiter
-            $message = 'Account erfolgreich erstellt! Du kannst dich jetzt einloggen.';
+            // Benutzer erfolgreich registriert, setze die Session-Variablen und leite zur Startseite weiter
+            $_SESSION['username'] = $username;
+            $_SESSION['userid'] = db()->lastInsertId(); // Assuming 'id' is the primary key in the 'users' table
+            header('Location: index.php');
+            exit();
         }
     }
 }
@@ -75,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Account erstellen</button>
             </form>
-            <p class="text-danger text-center mt-3"><?php echo $message; ?></p>
+            <p class="<?php echo $message_class; ?> text-center mt-3"><?php echo $message; ?></p>
             <p class="text-center mt-3">
                 Bereits ein Konto? <a href="login.php">Hier einloggen</a>
             </p>

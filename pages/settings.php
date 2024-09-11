@@ -31,25 +31,30 @@ if (isset($_POST['update_profile'])) {
 if (isset($_POST['change_password'])) {
     $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    // Verify current password
-    $stmt = db()->prepare('SELECT password FROM users WHERE id = :userid');
-    $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (password_verify($current_password, $user['password'])) {
-        // Update password
-        $new_password_hashed = password_hash($new_password, PASSWORD_DEFAULT);
-        $stmt = db()->prepare('UPDATE users SET password = :password WHERE id = :userid');
-        $stmt->bindValue(':password', $new_password_hashed);
+    if ($new_password !== $confirm_password) {
+        $error_message = "Die neuen Passwörter stimmen nicht überein.";
+    } else {
+        // Verify current password
+        $stmt = db()->prepare('SELECT password FROM users WHERE id = :userid');
         $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
         $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        header('Location: settings.php');
-        exit();
-    } else {
-        $error_message = "Aktuelles Passwort ist falsch.";
+        if (password_verify($current_password, $user['password'])) {
+            // Update password
+            $new_password_hashed = password_hash($new_password, PASSWORD_DEFAULT);
+            $stmt = db()->prepare('UPDATE users SET password = :password WHERE id = :userid');
+            $stmt->bindValue(':password', $new_password_hashed);
+            $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
+            $stmt->execute();
+
+            header('Location: settings.php');
+            exit();
+        } else {
+            $error_message = "Aktuelles Passwort ist falsch.";
+        }
     }
 }
 
@@ -198,6 +203,17 @@ if (isset($_POST['delete_account'])) {
             padding: 15px;
         }
     </style>
+    <script>
+        function validatePassword() {
+            var newPassword = document.getElementById("new_password").value;
+            var confirmPassword = document.getElementById("confirm_password").value;
+            if (newPassword !== confirmPassword) {
+                alert("Die neuen Passwörter stimmen nicht überein.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
@@ -249,7 +265,7 @@ if (isset($_POST['delete_account'])) {
                             Passwort ändern
                         </div>
                         <div class="card-body">
-                            <form method="POST">
+                            <form method="POST" onsubmit="return validatePassword();">
                                 <div class="form-group">
                                     <label for="current_password">Aktuelles Passwort</label>
                                     <input type="password" id="current_password" name="current_password" required>
@@ -257,6 +273,10 @@ if (isset($_POST['delete_account'])) {
                                 <div class="form-group">
                                     <label for="new_password">Neues Passwort</label>
                                     <input type="password" id="new_password" name="new_password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Neues Passwort bestätigen</label>
+                                    <input type="password" id="confirm_password" name="confirm_password" required>
                                 </div>
                                 <button type="submit" name="change_password" class="btn btn-warning">Passwort ändern</button>
                             </form>
