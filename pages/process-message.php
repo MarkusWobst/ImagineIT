@@ -87,7 +87,7 @@ try {
 
     $body['messages'][] = [
         'role' => 'user',
-        'content' => $_POST['message'],
+        'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
         'images' => [$imagestring],
     ];
 
@@ -103,18 +103,18 @@ try {
     foreach ($messages as $message) {
         $body['messages'][] = [
             'role' => $message['role'],
-            'content' => $message['content'],
+            'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
         ];
     }
 
     $body['messages'][] = [
         'role' => 'user',
-        'content' => $_POST['message'],
+        'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
     ];
 
 }
 
-$content = SQLite3::escapeString($_POST['message']);
+$content = SQLite3::escapeString(htmlspecialchars($_POST['message'], ENT_QUOTES));
 
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestring}')");

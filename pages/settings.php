@@ -5,10 +5,11 @@ require_once "../composables/db.php";
 session_start();
 
 // Überprüfen Sie, ob der Benutzer eingeloggt ist
-if (!isset($_SESSION['username'])) {
-    header('Location: start.php');
-    exit();
-}
+// Beispielx für den Einsatz der Middleware vor dem Aufruf bestimmter Routen
+// if (!isset($_SESSION['username'])) {
+//     header('Location: start.php');
+//     exit();
+// }
 
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];

@@ -1,6 +1,6 @@
 <?php
 require_once "../composables/db.php";
-require_once "login_attempts.php"; // Include the new script
+require_once "../composables/login_attempts.php"; // Include the new script
 session_start();
 $message = '';
 $attempts_limit = 8; // Maximum attempts in the given time window
@@ -8,7 +8,7 @@ $time_window = 300; // 5 minutes in seconds
 $block_time = 120; // 2 minutes in seconds
 
 // Define the login attempts key based on remote address
-$attempts_file = sys_get_temp_dir() . "/login_attempts_" . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $_SERVER['REMOTE_ADDR']);
+$attempts_file = sys_get_temp_dir() . "/../composables/login_attempts_" . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $_SERVER['REMOTE_ADDR']);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];

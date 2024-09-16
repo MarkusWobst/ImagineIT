@@ -5,10 +5,11 @@ require_once "../composables/db.php";
 session_start();
 
 // Überprüfe, ob der Benutzer eingeloggt ist
-if (!isset($_SESSION['username'])) {
-    header('Location: start.php');
-    exit();
-}
+// we do that with router.php
+// if (!isset($_SESSION['username'])) {
+//     header('Location: start.php');
+//     exit();
+// }
 
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];

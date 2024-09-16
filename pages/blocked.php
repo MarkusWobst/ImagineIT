@@ -1,3 +1,22 @@
+<?php
+// Set the countdown timer in seconds
+$countdown = 120;
+
+// Create a session to store the countdown timer
+session_start();
+$_SESSION['countdown'] = $countdown;
+
+// Check if the countdown timer has expired
+if ($_SESSION['countdown'] <= 0) {
+    // Show the retry button
+    $showButton = true;
+} else {
+    // Refresh the page every second to update the timer
+    header("Refresh: 1");
+    $showButton = false;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -30,7 +49,7 @@
         }
         .blocked-container .btn {
             margin-top: 20px;
-            display: none; /* Initially hide the button */
+            <?php if (!$showButton) { ?>display: none;<?php } ?>
         }
     </style>
 </head>
@@ -38,25 +57,13 @@
     <div class="blocked-container">
         <h1>Zugriff blockiert</h1>
         <p>Sie haben die maximale Anzahl von Anmeldeversuchen überschritten. Wir haben die IP-Adresse <?php echo $_SERVER['REMOTE_ADDR']; ?> für 2 Minuten blockiert.</p>
-        <p>Bitte warten Sie <span id="countdown">120</span> Sekunden, bevor Sie es erneut versuchen.</p>
-        <a href="login.php" id="retry-button" class="btn btn-primary">Zurück zur Anmeldung</a>
+        <p>Bitte warten Sie <span id="countdown"><?php echo $_SESSION['countdown']; ?></span> Sekunden, bevor Sie es erneut versuchen.</p>
+        <a href="login.php" id="retry-button" class="btn btn-primary"<?php if ($showButton) { ?> style="display: inline-block;"<?php } ?>>Zurück zur Anmeldung</a>
     </div>
 
-    <script>
-        // Countdown timer
-        var countdownElement = document.getElementById('countdown');
-        var retryButton = document.getElementById('retry-button');
-        var countdown = 120; // 2 minutes in seconds
-
-        var interval = setInterval(function() {
-            countdown--;
-            countdownElement.textContent = countdown;
-
-            if (countdown <= 0) {
-                clearInterval(interval);
-                retryButton.style.display = 'inline-block'; // Show the button
-            }
-        }, 1000);
-    </script>
+    <?php
+    // Decrement the countdown timer
+    $_SESSION['countdown']--;
+    ?>
 </body>
 </html>
