@@ -11,13 +11,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Prüfe, ob das Passwort und die Passwortbestätigung übereinstimmen
-    if ($password !== $confirm_password) {
+    // Regex patterns
+    $username_pattern = '/^[a-zA-Z0-9_]{3,16}$/'; // Alphanumeric and underscores, 3-16 characters
+    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/'; // Minimum 8 characters, at least one letter and one number
+
+    // Validate username
+    if (!preg_match($username_pattern, $username)) {
+        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen und Unterstriche enthalten.';
+        $message_class = 'text-danger';
+    }
+    // Validate password
+    elseif (!preg_match($password_pattern, $password)) {
+        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben und eine Zahl enthalten.';
+        $message_class = 'text-danger';
+    }
+    // Check if passwords match
+    elseif ($password !== $confirm_password) {
         $message = 'Die Passwörter stimmen nicht überein.';
         $message_class = 'text-danger';
     } else {
-
-        // Überprüfe, ob der Benutzername bereits existiert
+        // Check if username already exists
         $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
         $stmt->bindValue(':username', $username);
         $stmt->execute();
@@ -29,13 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // Füge den neuen Benutzer zur Datenbank hinzu
+            // Add the new user to the database
             $stmt = db()->prepare('INSERT INTO users (username, password) VALUES (:username, :password)');
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashed_password);
             $stmt->execute();
 
-            // Benutzer erfolgreich registriert, setze die Session-Variablen und leite zur Startseite weiter
+            // User successfully registered, set session variables and redirect to the homepage
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = db()->lastInsertId(); // Assuming 'id' is the primary key in the 'users' table
             header('Location: index.php');

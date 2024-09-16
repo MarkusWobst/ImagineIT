@@ -14,32 +14,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $blocked = isBlocked($attempts_file, $block_time, $attempts_limit, $time_window);
+    // Regex patterns
+    $username_pattern = '/^[a-zA-Z0-9_]{3,16}$/'; // Alphanumeric and underscores, 3-16 characters
+    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/'; // Minimum 8 characters, at least one letter and one number
 
-    // Prepare and execute the statement to fetch user data
-    $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
-    $stmt->bindValue(':username', $username);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($blocked && $user && password_verify($password, $user['password'])) {
-        // If blocked but login is successful, reset the login attempts
-        resetLoginAttempts($attempts_file);
+    // Validate username
+    if (!preg_match($username_pattern, $username)) {
+        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen und Unterstriche enthalten.';
     }
-
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['username'] = $username;
-        $_SESSION['userid'] = $user['id'];
-        resetLoginAttempts($attempts_file);
-        header('Location: index.php');
-        exit();
+    // Validate password
+    elseif (!preg_match($password_pattern, $password)) {
+        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben und eine Zahl enthalten.';
     } else {
-        if ($blocked) {
-            header("Location: blocked.php");
-            exit();
+        $blocked = isBlocked($attempts_file, $block_time, $attempts_limit, $time_window);
+
+        // Prepare and execute the statement to fetch user data
+        $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($blocked && $user && password_verify($password, $user['password'])) {
+            // If blocked but login is successful, reset the login attempts
+            resetLoginAttempts($attempts_file);
         }
-        logAttempt($attempts_file);
-        $message = 'Ungültiger Benutzername oder Passwort';
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['username'] = $username;
+            $_SESSION['userid'] = $user['id'];
+            resetLoginAttempts($attempts_file);
+            header('Location: index.php');
+            exit();
+        } else {
+            if ($blocked) {
+                header("Location: blocked.php");
+                exit();
+            }
+            logAttempt($attempts_file);
+            $message = 'Ungültiger Benutzername oder Passwort';
+        }
     }
 }
 ?>
