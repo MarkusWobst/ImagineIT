@@ -12,17 +12,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password = $_POST['confirm_password'];
 
     // Regex patterns
-    $username_pattern = '/^[a-zA-Z0-9_]{3,16}$/'; // Alphanumeric and underscores, 3-16 characters
-    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/'; // Minimum 8 characters, at least one letter and one number
+    $username_pattern = '/^[\w!@#$%^&*()\-+=]{3,16}$/'; // Alphanumeric, underscores, and special characters, 3-16 characters
+    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()\-+=]{8,}$/'; // Minimum 8 characters, at least one letter, one number, and special characters
 
     // Validate username
     if (!preg_match($username_pattern, $username)) {
-        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen und Unterstriche enthalten.';
+        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen, Unterstriche und Sonderzeichen enthalten.';
         $message_class = 'text-danger';
     }
     // Validate password
     elseif (!preg_match($password_pattern, $password)) {
-        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben und eine Zahl enthalten.';
+        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten.';
         $message_class = 'text-danger';
     }
     // Check if passwords match
