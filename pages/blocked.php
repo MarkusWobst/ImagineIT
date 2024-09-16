@@ -1,3 +1,28 @@
+<?php
+session_start();
+
+// Set the block duration in seconds (2 minutes)
+$block_duration = 120;
+
+// Check if the block start time is set in the session
+if (!isset($_SESSION['block_start_time'])) {
+    $_SESSION['block_start_time'] = time();
+}
+
+// Calculate the remaining block time
+$elapsed_time = time() - $_SESSION['block_start_time'];
+$remaining_time = $block_duration - $elapsed_time;
+
+// If the block time has expired, reset the block start time and allow retry
+if ($remaining_time <= 0) {
+    unset($_SESSION['block_start_time']);
+    $remaining_time = 0;
+    $show_retry_button = true;
+} else {
+    $show_retry_button = false;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -30,7 +55,7 @@
         }
         .blocked-container .btn {
             margin-top: 20px;
-            display: none; /* Initially hide the button */
+            display: <?php echo $show_retry_button ? 'inline-block' : 'none'; ?>;
         }
     </style>
 </head>
@@ -38,25 +63,15 @@
     <div class="blocked-container">
         <h1>Zugriff blockiert</h1>
         <p>Sie haben die maximale Anzahl von Anmeldeversuchen überschritten. Wir haben die IP-Adresse <?php echo $_SERVER['REMOTE_ADDR']; ?> für 2 Minuten blockiert.</p>
-        <p>Bitte warten Sie <span id="countdown">120</span> Sekunden, bevor Sie es erneut versuchen.</p>
+        <p>Bitte warten Sie <span id="countdown"><?php echo $remaining_time; ?></span> Sekunden, bevor Sie es erneut versuchen.</p>
         <a href="login.php" id="retry-button" class="btn btn-primary">Zurück zur Anmeldung</a>
     </div>
 
-    <script>
-        // Countdown timer
-        var countdownElement = document.getElementById('countdown');
-        var retryButton = document.getElementById('retry-button');
-        var countdown = 120; // 2 minutes in seconds
-
-        var interval = setInterval(function() {
-            countdown--;
-            countdownElement.textContent = countdown;
-
-            if (countdown <= 0) {
-                clearInterval(interval);
-                retryButton.style.display = 'inline-block'; // Show the button
-            }
-        }, 1000);
-    </script>
+    <?php
+    // Refresh the page every second to update the countdown
+    if (!$show_retry_button) {
+        echo '<meta http-equiv="refresh" content="1">';
+    }
+    ?>
 </body>
 </html>

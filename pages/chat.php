@@ -136,6 +136,8 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
             max-width: 60%;
             padding: 10px;
             border-radius: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
         .user-message .message-content {
@@ -249,7 +251,10 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                             <?php foreach ($messages as $message) { ?>
                                 <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
                                     <div class="message-content">
-                                        <?= htmlspecialchars($message['content']) ?>
+                                        <?php if (!empty($message['images'])) { ?>
+                                            <img src="data:image/jpeg;base64,<?= htmlspecialchars($message['images']) ?>" alt="Uploaded Image" style="max-width: 100%;">
+                                        <?php } ?>
+                                        <div><?= htmlspecialchars($message['content']) ?></div>
                                     </div>
                                 </li>
                             <?php } ?>

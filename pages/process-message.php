@@ -45,52 +45,54 @@ $fileattached = true;
 $imagestring = NULL;
 
 try {
-    $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
+    if (isset($_FILES["image"]) && $_FILES["image"]["tmp_name"]) {
+        $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
+        $imageFileType = mime_content_type($_FILES["image"]["tmp_name"]);
 
-    $imageFileType = (mime_content_type($_FILES["image"]["tmp_name"]));
+        // Check if file already exists
+        if (!file_exists($_FILES["image"]["tmp_name"])) {
+            throw new Exception("no file uploaded --> use normal chat");
+        }
 
-    // Check if file already exists
-    if (!file_exists($_FILES["image"]["tmp_name"])) {
-        throw new Exception("no file uoloaded --> use normal chat");
-    }
+        // Check file size
+        if ($_FILES["image"]["size"] > 5000000) {
+            throw new Exception("file is too large");
+        }
 
-    // Check file size
-    if ($_FILES["image"]["size"] > 5000000) {
-        throw new Exception("file is too large");
-    }
+        // Allow certain file formats
+        if (
+            $imageFileType != "image/jpg" &&
+            $imageFileType != "image/png" &&
+            $imageFileType != "image/jpeg"
+        ) {
+            throw new Exception("file isn't the right format");
+        }
 
-    // Allow certain file formats
-    if (
-        $imageFileType != "image/jpg"
-        && $imageFileType != "image/png"
-        && $imageFileType != "image/jpeg"
-    ) {
-        throw new Exception("file isnt the right format");
-    }
+        $imagestring = base64_encode($target_file);
 
-    $imagestring = base64_encode($target_file);
-
-    $body = [
-        'model' => 'llava-phi3',
-        'stream' => false,
-        'messages' => [],
-        'system' => $system_prompt // Add system prompt here
-    ];
-
-    foreach ($messages as $message) {
-        $body['messages'][] = [
-            'role' => $message['role'],
-            'content' => $message['content'],
-            'images' => $message['images'] ?? null,
+        $body = [
+            'model' => 'llava-phi3',
+            'stream' => false,
+            'messages' => [],
+            'system' => $system_prompt // Add system prompt here
         ];
+
+        foreach ($messages as $message) {
+            $body['messages'][] = [
+                'role' => $message['role'],
+                'content' => $message['content'],
+                'images' => $message['images'] ?? null,
+            ];
+        }
+
+        $body['messages'][] = [
+            'role' => 'user',
+            'content' => $_POST['message'],
+            'images' => [$imagestring],
+        ];
+    } else {
+        throw new Exception("no file uploaded --> use normal chat");
     }
-
-    $body['messages'][] = [
-        'role' => 'user',
-        'content' => $_POST['message'],
-        'images' => [$imagestring],
-    ];
-
 } catch (\Throwable $th) {
     $fileattached = false;
 
@@ -111,7 +113,6 @@ try {
         'role' => 'user',
         'content' => $_POST['message'],
     ];
-
 }
 
 $content = SQLite3::escapeString($_POST['message']);
@@ -121,7 +122,6 @@ $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at
 
 $username = "ollama";
 $password = "ollama-sepe";
-
 
 $ch = curl_init();
 curl_setopt_array($ch, [
@@ -135,7 +135,7 @@ $data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
 $content = SQLite3::escapeString($data['message']['content'] ?? $data['messages'][0]['content']);
-$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistent', '{$content}', CURRENT_TIMESTAMP)");
+$messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
 header('Location: chat.php?chat_id=' . $chatid);
 
