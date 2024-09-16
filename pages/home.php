@@ -81,8 +81,8 @@
 </head>
 <body>
 <div class="header-buttons">
-    <a href="login.php" class="btn btn-light">Anmelden</a>
-    <a href="register.php" class="btn btn-light">Registrieren</a>
+    <a href="/login" class="btn btn-light">Anmelden</a>
+    <a href="register" class="btn btn-light">Registrieren</a>
 </div>
 <div class="container">
     <div class="hero">

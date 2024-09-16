@@ -4,12 +4,6 @@ require_once "../composables/db.php";
 
 session_start();
 
-// Überprüfen Sie, ob der Benutzer eingeloggt ist
-if (!isset($_SESSION['username'])) {
-    header('Location: start.php');
-    exit();
-}
-
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 $show_confirmation = false;
@@ -30,7 +24,7 @@ if (isset($_POST['update_profile'])) {
     $stmt->execute();
 
     $_SESSION['username'] = $new_username;
-    header('Location: settings.php');
+    header('Location: /settings');
     exit();
 }
 
@@ -57,7 +51,7 @@ if (isset($_POST['change_password'])) {
             $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
 
-            header('Location: settings.php');
+            header('Location: /settings');
             exit();
         } else {
             $error_message = "Aktuelles Passwort ist falsch.";
@@ -81,7 +75,7 @@ if (isset($_POST['delete_account'])) {
 
         // Destroy the session and redirect to the start page
         session_destroy();
-        header('Location: start.php');
+        header('Location: /start');
         exit();
     }
 }
@@ -274,10 +268,10 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
-                        <a class="dropdown-item" href="index.php">Home</a>
-                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
-                        <a class="dropdown-item" href="help.php">Hilfe</a>
-                        <a class="dropdown-item logout" href="logout.php">Logout</a>
+                        <a class="dropdown-item" href="/index">Home</a>
+                        <a class="dropdown-item" href="/settings">Einstellungen</a>
+                        <a class="dropdown-item" href="/help">Hilfe</a>
+                        <a class="dropdown-item logout" href="/logout">Logout</a>
                     </div>
                 </li>
             </ul>

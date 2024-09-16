@@ -85,12 +85,19 @@ try {
 
         $body['messages'][] = [
             'role' => 'user',
-            'content' => $_POST['message'],
-            'images' => $imagestrings,
+            'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
+            'images' => [$imagestrings],
         ];
     } else {
         throw new Exception("no file uploaded --> use normal chat");
     }
+
+    // $body['messages'][] = [
+    //     'role' => 'user',
+    //     'content' => $_POST['message'],
+    //     'images' => [$imagestring],
+    // ];
+
 } catch (\Throwable $th) {
     $fileattached = false;
 
@@ -103,13 +110,13 @@ try {
     foreach ($messages as $message) {
         $body['messages'][] = [
             'role' => $message['role'],
-            'content' => $message['content'],
+            'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
         ];
     }
 
     $body['messages'][] = [
         'role' => 'user',
-        'content' => $_POST['message'],
+        'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
     ];
 }
 
@@ -141,7 +148,7 @@ curl_close($ch);
 $content = SQLite3::escapeString($data['message']['content'] ?? $data['messages'][0]['content']);
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
-header('Location: chat.php?chat_id=' . $chatid);
+header('Location: /chat?chat_id=' . $chatid);
 
 exit();
 ?>
