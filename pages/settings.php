@@ -250,6 +250,16 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
             color: #000;
         }
 
+        .dropdown-menu .dropdown-item.logout {
+            color: red;
+        }
+
+        .settings-button {
+            background: none;
+            border: none;
+            color: #f8f9fa;
+            font-size: 20px;
+        }
     </style>
 </head>
 
@@ -259,11 +269,16 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
         <a class="navbar-brand" href="#">Willkommen, <?php echo htmlspecialchars($username); ?>!</a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                <li class="nav-item dropdown">
+                    <button class="settings-button" id="welcomeButton">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
+                        <a class="dropdown-item" href="index.php">Home</a>
+                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
+                        <a class="dropdown-item" href="help.php">Hilfe</a>
+                        <a class="dropdown-item logout" href="logout.php">Logout</a>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -358,6 +373,17 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
 </div>
 
 <script>
+    document.getElementById('welcomeButton').addEventListener('click', function () {
+        var dropdown = document.getElementById('settingsDropdown');
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         if (showConfirmation) {
             document.getElementById('confirmation-overlay').style.display = 'flex';
@@ -368,6 +394,8 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
         });
     });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
