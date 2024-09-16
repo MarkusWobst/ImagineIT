@@ -1,31 +1,30 @@
 <?php
 require_once "../composables/db.php";
-require_once "../composables/login_attempts.php";
-
+require_once "login_attempts.php"; // Include the new script
+session_start();
 $message = '';
 $attempts_limit = 8; // Maximum attempts in the given time window
 $time_window = 300; // 5 minutes in seconds
 $block_time = 120; // 2 minutes in seconds
 
 // Define the login attempts key based on remote address
-$attempts_file = sys_get_temp_dir() . "/../composables/login_attempts_" . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $_SERVER['REMOTE_ADDR']);
+$attempts_file = sys_get_temp_dir() . "/login_attempts_" . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $_SERVER['REMOTE_ADDR']);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
     $username = $_POST['username'];
     $password = $_POST['password'];
 
     // Regex patterns
-    $username_pattern = '/^[a-zA-Z0-9_]{3,16}$/'; // Alphanumeric and underscores, 3-16 characters
-    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/'; // Minimum 8 characters, at least one letter and one number
+    $username_pattern = '/^[\w!@#$%^&*()\-+=]{3,16}$/'; // Alphanumeric, underscores, and special characters, 3-16 characters
+    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()\-+=]{8,}$/'; // Minimum 8 characters, at least one letter, one number, and special characters
 
     // Validate username
     if (!preg_match($username_pattern, $username)) {
-        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen und Unterstriche enthalten.';
+        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen, Unterstriche und Sonderzeichen enthalten.';
     }
     // Validate password
     elseif (!preg_match($password_pattern, $password)) {
-        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben und eine Zahl enthalten.';
+        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten.';
     } else {
         $blocked = isBlocked($attempts_file, $block_time, $attempts_limit, $time_window);
 
@@ -40,19 +39,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             resetLoginAttempts($attempts_file);
         }
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['username'] = $username;
-        $_SESSION['userid'] = $user['id'];
-        resetLoginAttempts($attempts_file);
-        header('Location: /index');
-        exit();
-    } else {
-        if ($blocked) {
-            header("Location: /blocked");
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['username'] = $username;
+            $_SESSION['userid'] = $user['id'];
+            resetLoginAttempts($attempts_file);
+            header('Location: index.php');
             exit();
+        } else {
+            if ($blocked) {
+                header("Location: blocked.php");
+                exit();
+            }
+            logAttempt($attempts_file);
+            $message = 'Ungültiger Benutzername oder Passwort';
         }
-        logAttempt($attempts_file);
-        $message = 'Ungültiger Benutzername oder Passwort';
     }
     }
 }
@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="row justify-content-center">
         <div class="col-md-4">
             <h2 class="text-center">Login</h2>
-            <form action="/login" method="POST" class="form-signin">
+            <form action="login.php" method="POST" class="form-signin">
                 <div class="form-group mb-3">
                     <label for="username" class="form-label">Benutzername</label>
                     <input type="text" name="username" class="form-control" required>
@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
             <p class="text-danger text-center mt-3"><?php echo $message; ?></p>
             <p class="text-center mt-3">
-                Noch kein Konto? <a href="/register">Account erstellen</a>
+                Noch kein Konto? <a href="register.php">Account erstellen</a>
             </p>
         </div>
     </div>
