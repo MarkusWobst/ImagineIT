@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Benutzer erfolgreich registriert, setze die Session-Variablen und leite zur Startseite weiter
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = db()->lastInsertId(); // Assuming 'id' is the primary key in the 'users' table
-            header('Location: index.php');
+            header('Location: /index');
             exit();
         }
     }
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="row justify-content-center">
         <div class="col-md-4">
             <h2 class="text-center">Account erstellen</h2>
-            <form action="register.php" method="POST" class="form-signin">
+            <form action="/register" method="POST" class="form-signin">
                 <div class="form-group mb-3">
                     <label for="username" class="form-label">Benutzername</label>
                     <input type="text" name="username" class="form-control" required>
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
             <p class="<?php echo $message_class; ?> text-center mt-3"><?php echo $message; ?></p>
             <p class="text-center mt-3">
-                Bereits ein Konto? <a href="login.php">Hier einloggen</a>
+                Bereits ein Konto? <a href="/login">Hier einloggen</a>
             </p>
         </div>
     </div>

@@ -4,13 +4,6 @@ require_once "../composables/db.php";
 
 session_start();
 
-// Überprüfen Sie, ob der Benutzer eingeloggt ist
-// Beispielx für den Einsatz der Middleware vor dem Aufruf bestimmter Routen
-// if (!isset($_SESSION['username'])) {
-//     header('Location: start.php');
-//     exit();
-// }
-
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 $show_confirmation = false;
@@ -31,7 +24,7 @@ if (isset($_POST['update_profile'])) {
     $stmt->execute();
 
     $_SESSION['username'] = $new_username;
-    header('Location: settings.php');
+    header('Location: /settings');
     exit();
 }
 
@@ -58,7 +51,7 @@ if (isset($_POST['change_password'])) {
             $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
 
-            header('Location: settings.php');
+            header('Location: /settings');
             exit();
         } else {
             $error_message = "Aktuelles Passwort ist falsch.";
@@ -82,7 +75,7 @@ if (isset($_POST['delete_account'])) {
 
         // Destroy the session and redirect to the start page
         session_destroy();
-        header('Location: start.php');
+        header('Location: /start');
         exit();
     }
 }
@@ -261,10 +254,10 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php">Home</a>
+                    <a class="nav-link" href="/index">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                    <a class="nav-link" href="/logout">Logout</a>
                 </li>
             </ul>
         </div>

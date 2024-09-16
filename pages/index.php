@@ -4,13 +4,6 @@ require_once "../composables/db.php";
 
 session_start();
 
-// Überprüfen Sie, ob der Benutzer eingeloggt ist
-// we do that with router.php
-// if (!isset($_SESSION['username'])) {
-//     header('Location: start.php');
-//     exit();
-// }
-
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
@@ -30,7 +23,7 @@ if (isset($_POST['create_chat'])) {
     $chat_id = db()->lastInsertId();
 
     // Nach dem Erstellen des Chats zur neuen Chat-Seite umleiten
-    header('Location: chat.php?chat_id=' . $chat_id . '&user_id=' . $userid);
+    header('Location: /chat?chat_id=' . $chat_id);
     exit();
 }
 
@@ -62,12 +55,12 @@ if (isset($_POST['delete_chat']) && isset($_POST['chat_id'])) {
     } catch (Exception $e) {
         // Log errors and redirect to an error page
         error_log("Error: " . $e->getMessage());
-        header('Location: error.php');
+        header('Location: /error');
         exit();
     }
 
-    // Nach dem Löschen des Chats Seite neu laden und zu index.php umleiten
-    header('Location: index.php');
+    // Nach dem Löschen des Chats Seite neu laden und zu index umleiten
+    header('Location: /index');
     exit();
 }
 
@@ -269,9 +262,9 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
-                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
-                        <a class="dropdown-item" href="help.php">Hilfe</a>
-                        <a class="dropdown-item text-danger" href="logout.php">Logout</a>
+                        <a class="dropdown-item" href="/settings">Einstellungen</a>
+                        <a class="dropdown-item" href="/help">Hilfe</a>
+                        <a class="dropdown-item text-danger" href="/logout">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -299,7 +292,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="chat-card">
                                 <h5><?= htmlspecialchars($chat["title"]); ?></h5>
                                 <div class="btn-group">
-                                    <form action="./chat.php" method="get">
+                                    <form action="/chat" method="get">
                                         <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
                                         <input type="hidden" name="user_id" value="<?= $_SESSION['userid'] ?>">
                                         <button type="submit">öffnen</button>

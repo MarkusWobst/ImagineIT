@@ -137,7 +137,7 @@ curl_close($ch);
 $content = SQLite3::escapeString($data['message']['content'] ?? $data['messages'][0]['content']);
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistent', '{$content}', CURRENT_TIMESTAMP)");
 
-header('Location: chat.php?chat_id=' . $chatid);
+header('Location: /chat?chat_id=' . $chatid);
 
 exit();
 ?>

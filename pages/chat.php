@@ -4,13 +4,6 @@ require_once "../composables/db.php";
 
 session_start();
 
-// Überprüfe, ob der Benutzer eingeloggt ist
-// we do that with router.php
-// if (!isset($_SESSION['username'])) {
-//     header('Location: start.php');
-//     exit();
-// }
-
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
@@ -29,7 +22,7 @@ try {
         throw new Exception("you shall not pass!!!");
     }
 } catch (\Throwable $th) {
-    header('Location: logout.php');
+    header('Location: /logout');
     session_abort();
 }
 
@@ -216,10 +209,10 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                         </button>
                     </form>
                     <div class="dropdown-menu" id="settingsDropdown" style="display: <?= $dropdown_visible ? 'block' : 'none' ?>; position: absolute; top: 60px; right: 20px;">
-                        <a class="dropdown-item" href="index.php">Home</a>
-                        <a class="dropdown-item" href="settings.php">Einstellungen</a>
-                        <a class="dropdown-item" href="help.php">Hilfe</a>
-                        <a class="dropdown-item logout" href="logout.php">Logout</a>
+                        <a class="dropdown-item" href="/index">Home</a>
+                        <a class="dropdown-item" href="/settings">Einstellungen</a>
+                        <a class="dropdown-item" href="/help">Hilfe</a>
+                        <a class="dropdown-item logout" href="/logout">Logout</a>
                     </div>
                 </li>
             </ul>
@@ -232,7 +225,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         <div class="col-md-12">
             <div class="main-content">
                 <div class="card-footer">
-                    <form action="process-message.php" method="post" enctype="multipart/form-data">
+                    <form action="/process-message" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">

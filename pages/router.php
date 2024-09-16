@@ -1,21 +1,44 @@
 <?php
 session_start();
-route($_SERVER['$request_uri'], $routes);
-
-if (in_array($route_info['controller'], ['dashboard.php', 'settings.php'])) {
-    auth_middleware();
-    blocked();
-}
 
 $routes = [
     '' => 'home.php',
+    '/' => 'home.php',
     'home' => 'home.php',
-    'about' => 'about.php',
-    'contact' => 'contact.php',
-    'article/(\d+)' => 'article.php',
+    'chat' => 'chat.php',
+    'help' => 'help.php',
+    'index' => 'index.php',
+    'login' => 'login.php',
+    'register' => 'register.php',
+    'settings' => 'settings.php',
+    'blocked' => 'blocked.php',
 ];
 
-function route($uri, $routes) {
+$chatid = $_GET["chat_id"] ?? null;
+$request_uri = trim($_SERVER['REQUEST_URI'], '/');
+$route_info = route($request_uri, $routes);
+
+// Add authentication middleware
+if (!in_array($route_info['controller'], ['home.php', 'register.php', 'login.php'])) {
+    auth_middleware();
+}
+
+// if (isset($_GET['route'])) {
+//     $route = $_GET['route'];
+//     if (array_key_exists($route, $routes)) {
+//         $route_info = ['controller' => $routes[$route], 'params' => []]; // Update $route_info
+//     }
+// }
+
+
+var_dump($route_info);
+require $route_info['controller'];
+
+// route($_SERVER['REQUEST_URI'], $routes);
+
+// header('Location: chat?chat_id=' . $chatid);
+function route($uri, $routes)
+{
     foreach ($routes as $pattern => $controller) {
         if (preg_match("#^$pattern$#", $uri, $matches)) {
             return ['controller' => $controller, 'params' => array_slice($matches, 1)];
@@ -24,18 +47,10 @@ function route($uri, $routes) {
     return ['controller' => '404.php', 'params' => []];
 }
 
-$request_uri = trim($_SERVER['REQUEST_URI'], '/');
-$route_info = route($request_uri, $routes);
-require 'controllers/' . $route_info['controller'];
-
-
-function auth_middleware() {
+function auth_middleware()
+{
     if (!isset($_SESSION['userid'])) {
         header('Location: /login');
         exit;
     }
-}
-
-function blocked() {
-    
 }

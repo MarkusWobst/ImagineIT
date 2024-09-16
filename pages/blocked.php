@@ -64,7 +64,7 @@ if ($remaining_time <= 0) {
         <h1>Zugriff blockiert</h1>
         <p>Sie haben die maximale Anzahl von Anmeldeversuchen überschritten. Wir haben die IP-Adresse <?php echo $_SERVER['REMOTE_ADDR']; ?> für 2 Minuten blockiert.</p>
         <p>Bitte warten Sie <span id="countdown"><?php echo $remaining_time; ?></span> Sekunden, bevor Sie es erneut versuchen.</p>
-        <a href="login.php" id="retry-button" class="btn btn-primary">Zurück zur Anmeldung</a>
+        <a href="/login" id="retry-button" class="btn btn-primary">Zurück zur Anmeldung</a>
     </div>
 
     <?php
