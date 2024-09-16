@@ -42,33 +42,35 @@ switch ($ai_type) {
 
 // File input handling
 $fileattached = true;
-$imagestring = NULL;
+$imagestrings = [];
 
 try {
-    if (isset($_FILES["image"]) && $_FILES["image"]["tmp_name"]) {
-        $target_file = file_get_contents($_FILES["image"]["tmp_name"]);
-        $imageFileType = mime_content_type($_FILES["image"]["tmp_name"]);
+    if (isset($_FILES["images"]) && $_FILES["images"]["tmp_name"][0]) {
+        foreach ($_FILES["images"]["tmp_name"] as $key => $tmp_name) {
+            $target_file = file_get_contents($tmp_name);
+            $imageFileType = mime_content_type($tmp_name);
 
-        // Check if file already exists
-        if (!file_exists($_FILES["image"]["tmp_name"])) {
-            throw new Exception("no file uploaded --> use normal chat");
+            // Check if file already exists
+            if (!file_exists($tmp_name)) {
+                throw new Exception("no file uploaded --> use normal chat");
+            }
+
+            // Check file size
+            if ($_FILES["images"]["size"][$key] > 5000000) {
+                throw new Exception("file is too large");
+            }
+
+            // Allow certain file formats
+            if (
+                $imageFileType != "image/jpg" &&
+                $imageFileType != "image/png" &&
+                $imageFileType != "image/jpeg"
+            ) {
+                throw new Exception("file isn't the right format");
+            }
+
+            $imagestrings[] = base64_encode($target_file);
         }
-
-        // Check file size
-        if ($_FILES["image"]["size"] > 5000000) {
-            throw new Exception("file is too large");
-        }
-
-        // Allow certain file formats
-        if (
-            $imageFileType != "image/jpg" &&
-            $imageFileType != "image/png" &&
-            $imageFileType != "image/jpeg"
-        ) {
-            throw new Exception("file isn't the right format");
-        }
-
-        $imagestring = base64_encode($target_file);
 
         $body = [
             'model' => 'llava-phi3',
@@ -81,14 +83,14 @@ try {
             $body['messages'][] = [
                 'role' => $message['role'],
                 'content' => $message['content'],
-                'images' => $message['images'] ?? null,
+                'images' => $message['images'] ? explode(',', $message['images']) : null,
             ];
         }
 
         $body['messages'][] = [
             'role' => 'user',
             'content' => $_POST['message'],
-            'images' => [$imagestring],
+            'images' => $imagestrings,
         ];
     } else {
         throw new Exception("no file uploaded --> use normal chat");
@@ -116,9 +118,10 @@ try {
 }
 
 $content = SQLite3::escapeString($_POST['message']);
+$imagestrings_combined = implode(',', $imagestrings);
 
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
-    VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestring}')");
+    VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
 
 $username = "ollama";
 $password = "ollama-sepe";

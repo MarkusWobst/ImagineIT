@@ -238,7 +238,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">
                             <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <input type="file" class="form-control input-sm" name="image" id="file-input">
+                            <input type="file" class="form-control input-sm" name="images[]" id="file-input" multiple>
                             <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
                             <button class="btn btn-send" type="submit">Senden</button>
                         </div>
@@ -252,7 +252,12 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
                                     <div class="message-content">
                                         <?php if (!empty($message['images'])) { ?>
-                                            <img src="data:image/jpeg;base64,<?= htmlspecialchars($message['images']) ?>" alt="Uploaded Image" style="max-width: 100%;">
+                                            <?php
+                                            $images = explode(',', $message['images']);
+                                            foreach ($images as $image) {
+                                                echo '<img src="data:image/jpeg;base64,' . htmlspecialchars($image) . '" alt="Uploaded Image" style="max-width: 100%;">';
+                                            }
+                                            ?>
                                         <?php } ?>
                                         <div><?= htmlspecialchars($message['content']) ?></div>
                                     </div>
