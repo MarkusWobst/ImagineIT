@@ -12,24 +12,21 @@ $routes = [
     'register' => 'register.php',
     'settings' => 'settings.php',
     'blocked' => 'blocked.php',
+    'process-message' => 'process-message.php',
 ];
 
 $chatid = $_GET["chat_id"] ?? null;
-$request_uri = trim($_SERVER['REQUEST_URI'], '/');
+$request_uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+var_dump($request_uri);
+
 $route_info = route($request_uri, $routes);
+var_dump($route_info);
+
 
 // Add authentication middleware
 if (!in_array($route_info['controller'], ['home.php', 'register.php', 'login.php'])) {
     auth_middleware();
 }
-
-// if (isset($_GET['route'])) {
-//     $route = $_GET['route'];
-//     if (array_key_exists($route, $routes)) {
-//         $route_info = ['controller' => $routes[$route], 'params' => []]; // Update $route_info
-//     }
-// }
-
 
 var_dump($route_info);
 require $route_info['controller'];

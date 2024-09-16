@@ -2,8 +2,6 @@
 
 require_once "../composables/db.php";
 
-session_start();
-
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 

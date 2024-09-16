@@ -2,8 +2,6 @@
 
 require_once "../composables/db.php";
 
-session_start();
-
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
@@ -294,7 +292,6 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="btn-group">
                                     <form action="/chat" method="get">
                                         <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                        <input type="hidden" name="user_id" value="<?= $_SESSION['userid'] ?>">
                                         <button type="submit">öffnen</button>
                                     </form>
                                     <form method="POST">

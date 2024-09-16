@@ -2,8 +2,6 @@
 
 require_once "../composables/db.php";
 
-session_start();
-
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 $show_confirmation = false;

@@ -151,7 +151,7 @@
         </div>
     </div>
     <div class="footer">
-        <p>&copy; 2024 ImagineIT. Powered by LAVA-PHI3.</p>
+        <p>&copy; 2024 ImagineIT. Powered by LLAVA-PHI3.</p>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

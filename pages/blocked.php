@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Set the block duration in seconds (2 minutes)
 $block_duration = 120;

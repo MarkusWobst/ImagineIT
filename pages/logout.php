@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // datenbank verbindng trennen
 if (isset($db_connection)) {

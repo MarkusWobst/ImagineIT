@@ -2,8 +2,6 @@
 
 require_once '../composables/db.php';
 
-session_start();
-
 $chatid = $_POST["chat_id"] ?? null;
 $_SESSION['chat_id'] = $chatid;
 $userid = $_SESSION['userid'];

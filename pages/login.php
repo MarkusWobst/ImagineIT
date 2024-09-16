@@ -54,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         logAttempt($attempts_file);
         $message = 'Ungültiger Benutzername oder Passwort';
     }
+    }
 }
 ?>
 <!DOCTYPE html>
