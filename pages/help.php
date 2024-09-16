@@ -43,8 +43,8 @@
 <script>
     const memes = <?php
         $memes = [
-            ["src" => "../pictures/Freakbob.png", "sound" => "../pictures/Furz geräusch ton _ furzsound.mp3"],
-            ["src" => "../pictures/dc3.jpg", "sound" => "../pictures/Hog rider sound.mp3"],
+            ["src" => "../pictures/Freakbob.png", "sound" => "../audio/Furz geräusch ton _ furzsound.mp3"],
+            ["src" => "../pictures/dc3.jpg", "sound" => "../audio/Hog rider sound.mp3"],
             // Add more memes and sounds here
         ];
         echo json_encode($memes);

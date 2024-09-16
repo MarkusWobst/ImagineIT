@@ -60,12 +60,8 @@ try {
                 throw new Exception("file is too large");
             }
 
-            // Allow certain file formats
-            if (
-                $imageFileType != "image/jpg" &&
-                $imageFileType != "image/png" &&
-                $imageFileType != "image/jpeg"
-            ) {
+            // Allow certain file formats using regex
+            if (!preg_match('/^image\/(jpg|jpeg|png)$/', $imageFileType)) {
                 throw new Exception("file isn't the right format");
             }
 
@@ -122,6 +118,11 @@ try {
         'role' => 'user',
         'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
     ];
+}
+
+// Validate and escape the message content using regex
+if (!preg_match('/^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]+$/u', $_POST['message'])) {
+    throw new Exception("Invalid message content");
 }
 
 $content = SQLite3::escapeString($_POST['message']);
