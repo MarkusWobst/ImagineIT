@@ -17,10 +17,7 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// terminiert sitzung
 session_destroy();
-
-// schickt zu main.php
-header("Location: start.php");
+header("Location: /start");
 exit;
 ?>
