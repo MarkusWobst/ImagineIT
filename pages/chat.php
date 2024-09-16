@@ -201,6 +201,12 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
             color: #f8f9fa;
             font-size: 20px;
         }
+
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
     </style>
 </head>
 
@@ -233,14 +239,14 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         <div class="col-md-12">
             <div class="main-content">
                 <div class="card-footer">
-                    <form action="process-message.php" method="post" enctype="multipart/form-data">
+                    <form action="process-message.php" method="post" enctype="multipart/form-data" id="messageForm">
                         <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">
                             <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
                             <input type="file" class="form-control input-sm" name="images[]" id="file-input" multiple>
                             <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
-                            <button class="btn btn-send" type="submit">Senden</button>
+                            <button class="btn btn-send" type="submit" id="sendButton">Senden</button>
                         </div>
                     </form>
                 </div>
@@ -268,9 +274,16 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
     </div>
 </div>
 
-<?php
-echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>';
-?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const messageForm = document.getElementById('messageForm');
+    const sendButton = document.getElementById('sendButton');
+
+    messageForm.addEventListener('submit', function() {
+        sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Senden...';
+        sendButton.disabled = true;
+    });
+</script>
 
 </body>
 
