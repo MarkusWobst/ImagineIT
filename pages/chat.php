@@ -252,12 +252,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
                                     <div class="message-content">
                                         <?php if (!empty($message['images'])) { ?>
-                                            <?php
-                                            $images = explode(',', $message['images']);
-                                            foreach ($images as $image) {
-                                                echo '<img src="data:image/jpeg;base64,' . htmlspecialchars($image) . '" alt="Uploaded Image" style="max-width: 100%;">';
-                                            }
-                                            ?>
+                                            <img src="data:image/jpeg;base64,<?= htmlspecialchars($message['images']) ?>" alt="Uploaded Image" style="max-width: 100%;">
                                         <?php } ?>
                                         <div><?= htmlspecialchars($message['content']) ?></div>
                                     </div>
