@@ -1,7 +1,7 @@
 <?php
 require_once "../composables/db.php";
-require_once "login_attempts.php"; // Include the new script
-session_start();
+require_once "../composables/login_attempts.php"; // Include the new script
+
 $message = '';
 $attempts_limit = 8; // Maximum attempts in the given time window
 $time_window = 300; // 5 minutes in seconds
@@ -54,11 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = 'Ungültiger Benutzername oder Passwort';
         }
     }
-    }
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,28 +72,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <h2 class="text-center">Login</h2>
-            <form action="login.php" method="POST" class="form-signin">
-                <div class="form-group mb-3">
-                    <label for="username" class="form-label">Benutzername</label>
-                    <input type="text" name="username" class="form-control" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="password" class="form-label">Passwort</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Einloggen</button>
-            </form>
-            <p class="text-danger text-center mt-3"><?php echo $message; ?></p>
-            <p class="text-center mt-3">
-                Noch kein Konto? <a href="register.php">Account erstellen</a>
-            </p>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center">Login</h2>
+                <form action="login.php" method="POST" class="form-signin">
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Benutzername</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Einloggen</button>
+                </form>
+                <p class="text-danger text-center mt-3">
+                    <?php echo $message; ?>
+                </p>
+                <p class="text-center mt-3">
+                    Noch kein Konto? <a href="register.php">Account erstellen</a>
+                </p>
+            </div>
         </div>
     </div>
-</div>
 </body>
+
 </html>

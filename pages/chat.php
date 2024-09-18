@@ -250,7 +250,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
                                     <div class="message-content">
                                         <?php if (!empty($message['images'])) { ?>
-                                            <img src="data:image/jpeg;base64,<?= htmlspecialchars($message['images']) ?>" alt="Uploaded Image" style="max-width: 250px;">
+                                            <img src="data:image/jpeg;base64,<?= $message['images'] ?>" alt="Uploaded Image" style="max-width: 250px;">
                                         <?php } ?>
                                         <div><?= htmlspecialchars($message['content']) ?></div>
                                     </div>
