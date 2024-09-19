@@ -6,6 +6,7 @@ require_once "../composables/csrf_token.php";
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
+
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
 if (isset($_POST['create_chat'])) {
     $chat_title = $_POST['chat_title'];

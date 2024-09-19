@@ -2,7 +2,7 @@
 
 require_once '../composables/db.php';
 require_once "../composables/csrf_token.php";
-
+require_once "../composables/aes.php";
 
 $chatid = $_POST["chat_id"] ?? null;
 $_SESSION['chat_id'] = $chatid;
@@ -72,7 +72,7 @@ try {
             'model' => 'llava-phi3',
             'stream' => false,
             'messages' => [],
-            'system' => $system_prompt // Add system prompt here
+            'system' => $system_prompt
         ];
 
         foreach ($messages as $message) {
@@ -92,11 +92,7 @@ try {
         throw new Exception("no file uploaded --> use normal chat");
     }
 
-    // $body['messages'][] = [
-    //     'role' => 'user',
-    //     'content' => $_POST['message'],
-    //     'images' => [$imagestring],
-    // ];
+    $imagestrings_combined = encrypt(implode(',', $imagestrings));
 
 } catch (\Throwable $th) {
     $fileattached = false;
@@ -104,7 +100,7 @@ try {
     $body = [
         'model' => 'llava-phi3',
         'stream' => false,
-        'system' => $system_prompt // Add system prompt here
+        'system' => $system_prompt
     ];
 
     foreach ($messages as $message) {
@@ -118,6 +114,8 @@ try {
         'role' => 'user',
         'content' => htmlspecialchars($_POST['message'], ENT_QUOTES),
     ];
+
+    $imagestrings_combined = NULL;
 }
 
 // Validate and escape the message content using regex
@@ -125,8 +123,7 @@ if (!preg_match('/^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]+$/u', $_POST['message'])) {
     throw new Exception("Invalid message content");
 }
 
-$content = SQLite3::escapeString($_POST['message']);
-$imagestrings_combined = implode(',', $imagestrings);
+$content = encrypt(SQLite3::escapeString($_POST['message']));
 
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
@@ -145,10 +142,7 @@ curl_setopt_array($ch, [
 $data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-// var_dump($data);
-// die;
-
-$content = SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']);
+$content = encrypt(SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']));
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
 header('Location: /chat?chat_id=' . $chatid);

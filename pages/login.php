@@ -43,10 +43,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             resetLoginAttempts($attempts_file);
         }
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && password_verify($user['salt'].$password, $user['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = $user['id'];
             resetLoginAttempts($attempts_file);
+            
+            // Encrypt the password with SHA256 and save it as a session variable
+            $_SESSION['keySHA256'] = hash('sha256', $user['pepper'].$password);
+
             header('Location: index.php');
             exit();
         } else {

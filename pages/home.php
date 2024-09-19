@@ -43,7 +43,6 @@
             margin-bottom: 20px;
             perspective: 1000px;
             height: 100%;
-            visibility: ;
         }
 
         .flip-card-inner {

@@ -2,6 +2,7 @@
 
 require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
+require_once "../composables/aes.php";
 
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
@@ -254,9 +255,9 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                                 <li class="<?= $message['role'] === 'user' ? 'user-message' : 'assistant-message' ?>">
                                     <div class="message-content">
                                         <?php if (!empty($message['images'])) { ?>
-                                            <img src="data:image/jpeg;base64,<?= $message['images'] ?>" alt="Uploaded Image" style="max-width: 250px;">
+                                            <img src="data:image/jpeg;base64,<?php echo decrypt($message['images']) ?>" alt="Uploaded Image" style="max-width: 250px;">
                                         <?php } ?>
-                                        <div><?= htmlspecialchars($message['content']) ?></div>
+                                        <div><?= htmlspecialchars(decrypt($message['content'])) ?></div>
                                     </div>
                                 </li>
                             <?php } ?>
