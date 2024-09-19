@@ -21,16 +21,13 @@
             flex: 1;
         }
 
-        .footer-container {
-            margin-top: auto;
-        }
-
         footer {
             text-align: center;
             font-size: 14px;
             background-color: #2c3e50;
             color: #f0f0f0;
             padding: 10px;
+            width: 100%; /* Full width */
         }
 
         .hero {
@@ -42,8 +39,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             perspective: 1000px;
-            height: 100%;
-            visibility: ;
+            height: 300px; /* Set a fixed height for the card */
         }
 
         .flip-card-inner {
@@ -74,8 +70,11 @@
         }
 
         .flip-card-front img {
-            max-width: 100%;
+            max-width: 90%; /* Adjust image size */
+            height: auto; /* Auto height */
             border-radius: 10px;
+            margin: auto; /* Center the image */
+            display: block; /* Block element */
         }
 
         .flip-card-back {
@@ -85,7 +84,10 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: center; /* Vertical centering */
+            align-items: center; /* Horizontal centering */
+            text-align: center; /* Center text */
+            height: 100%; /* Ensure height is 100% */
         }
 
         .header-buttons {
@@ -114,9 +116,9 @@
     <div class="container">
         <div class="hero">
             <h1>Willkommen bei ImagineIT</h1>
-            <p>Ihre intelligente Assistentin, die Bilder in Geschichten verwandelt und Geschichten mit Bildern erzählt
-            </p>
+            <p>Ihre intelligente Assistentin, die Bilder in Geschichten verwandelt und Geschichten mit Bildern erzählt</p>
         </div>
+
         <div class="row">
             <div class="col-md-4">
                 <div class="info-card">
@@ -126,42 +128,7 @@
                         </div>
                         <div class="flip-card-back">
                             <h2>Ritter Freakbob</h2>
-                            <p>Ritter Freakbob und das Geheimnis des Verzauberten Waldes
-
-                                Es war einmal ein ungewöhnlicher Ritter namens Freakbob. Er war nicht wie die anderen
-                                Ritter, denn er trug eine Rüstung aus bunten Federn und hatte einen Helm, der wie ein
-                                riesiger Fisch aussah. Trotz seines seltsamen Aussehens war Freakbob ein mutiger und
-                                edler Ritter, der immer bereit war, den Schwachen zu helfen.
-
-                                Eines Tages hörte Freakbob von einem verzauberten Wald, in dem ein mächtiger Drache
-                                lebte. Der Drache hatte das Dorf in der Nähe des Waldes terrorisiert und die
-                                Dorfbewohner lebten in ständiger Angst. Ritter Freakbob beschloss, dem Drachen
-                                entgegenzutreten und das Dorf zu retten.
-
-                                Mit seinem treuen Pferd, das er liebevoll “Blitz” nannte, ritt Freakbob in den Wald. Die
-                                Bäume flüsterten geheimnisvolle Worte und die Luft war erfüllt von Magie. Plötzlich
-                                stand der Drache vor ihm, seine Schuppen glänzten in allen Farben des Regenbogens.
-
-                                “Wer wagt es, meinen Wald zu betreten?” brüllte der Drache.
-
-                                “Ich bin Ritter Freakbob, und ich werde dich besiegen, um das Dorf zu retten!” rief
-                                Freakbob mutig.
-
-                                Der Drache lachte. “Du bist mutig, kleiner Ritter. Aber Mut allein wird nicht
-                                ausreichen.”
-
-                                Freakbob zog sein Schwert, das ebenfalls in bunten Farben schimmerte, und stürzte sich
-                                auf den Drachen. Der Kampf war lang und hart, aber Freakbob gab nicht auf. Schließlich
-                                gelang es ihm, den Drachen mit einem geschickten Hieb zu besiegen.
-
-                                Der Drache verwandelte sich in eine wunderschöne Fee. “Danke, tapferer Ritter,” sagte
-                                sie. “Ich war einst eine Fee, die von einem bösen Zauberer in einen Drachen verwandelt
-                                wurde. Durch deinen Mut hast du mich befreit.”
-
-                                Die Fee belohnte Freakbob mit einem magischen Amulett, das ihm in zukünftigen Abenteuern
-                                helfen würde. Das Dorf war gerettet, und Ritter Freakbob wurde als Held gefeiert.
-
-                                Und so lebte Ritter Freakbob glücklich und bereit für neue Abenteuer.</p>
+                            <p>Ritter Freakbob, bekannt für seine stärke, hörte von einem Drachen, der ein Dorf terrorisierte. Mutig ritt er mit seinem Pferd Blitz in den verzauberten Wald. Nach einem langen Kampf besiegte er den Drachen, der sich in eine Fee verwandelte. Sie belohnte ihn mit einem magischen Amulett, und das Dorf feierte ihn als Helden.</p>
                         </div>
                     </div>
                 </div>
@@ -174,7 +141,7 @@
                         </div>
                         <div class="flip-card-back">
                             <h2>King Freakbob XIV</h2>
-                            <p>King Freakbob XIV war der weiseste und mächtigste König des Landes...</p>
+                            <p>King Freakbob XIV war der weiseste König des Landes. Als ein dunkler Schatten das Königreich bedrohte, versammelte er mutige Ritter und Magier. Gemeinsam fanden sie die Quelle des Schattens und besiegten sie, wodurch das Licht ins Königreich zurückkehrte. King Freakbob wurde als Held gefeiert und lehrte sein Volk, dass wahre Stärke in der Gemeinschaft liegt.</p>
                         </div>
                     </div>
                 </div>
@@ -187,7 +154,7 @@
                         </div>
                         <div class="flip-card-back">
                             <h2>Super Bob</h2>
-                            <p>Super Bob rettet die Welt mit seinen unglaublichen Kräften...</p>
+                            <p>Super Bob, einst ein normaler Mensch, erhielt übernatürliche Kräfte durch ein geheimnisvolles Artefakt. Er kämpfte gegen den bösen Dr. Schatten und rettete die Welt vor Chaos. Mit Mut und Entschlossenheit half er den Menschen und wurde als Held gefeiert, bereit für neue Abenteuer.</p>
                         </div>
                     </div>
                 </div>
@@ -200,7 +167,7 @@
         </div>
     </footer>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.com/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
