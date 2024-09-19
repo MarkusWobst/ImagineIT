@@ -1,6 +1,8 @@
 <?php
 
 require_once "../composables/db.php";
+require_once "../composables/csrf_token.php";
+
 
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
@@ -14,6 +16,7 @@ if (isset($_POST['request_delete_account'])) {
 
 // Handle profile update
 if (isset($_POST['update_profile'])) {
+    verify_csrf_token($_POST["csrf_token"]);
     $new_username = $_POST['username'];
 
     $stmt = db()->prepare('UPDATE users SET username = :username WHERE id = :userid');
@@ -28,6 +31,7 @@ if (isset($_POST['update_profile'])) {
 
 // Handle password change
 if (isset($_POST['change_password'])) {
+    verify_csrf_token($_POST["csrf_token"]);
     $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
@@ -59,6 +63,7 @@ if (isset($_POST['change_password'])) {
 
 // Handle account deletion confirmation
 if (isset($_POST['delete_account'])) {
+    verify_csrf_token($_POST["csrf_token"]);
     $confirmation_phrase = $_POST['confirmation_phrase'];
     $required_phrase = "DELETE";
 
@@ -300,6 +305,7 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
                                     <input type="text" id="username" name="username" value="<?= htmlspecialchars($username); ?>" required>
                                 </div>
                                 <button type="submit" name="update_profile" class="btn btn-primary">Profil aktualisieren</button>
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             </form>
                         </div>
                     </div>
@@ -325,6 +331,7 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
                                     <input type="password" id="confirm_password" name="confirm_password" required>
                                 </div>
                                 <button type="submit" name="change_password" class="btn btn-warning">Passwort ändern</button>
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             </form>
                         </div>
                     </div>
@@ -338,6 +345,7 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
                         <div class="card-body">
                             <form method="POST">
                                 <button type="submit" name="request_delete_account" class="btn btn-danger">Konto löschen</button>
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             </form>
                         </div>
                     </div>
@@ -355,6 +363,7 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
                                     <small class="form-text text-muted">Bitte geben Sie 'DELETE' ein, um Ihr Konto zu löschen.</small>
                                 </div>
                                 <button type="submit" name="delete_account" class="btn btn-danger">Bestätigen</button>
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             </form>
                         </div>
                     </div>

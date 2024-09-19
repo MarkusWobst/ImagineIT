@@ -1,6 +1,7 @@
 <?php
 
 require_once "../composables/db.php";
+require_once "../composables/csrf_token.php";
 
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
@@ -98,7 +99,9 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             background: #343a40;
         }
 
-        .navbar-brand, .nav-link, .btn-outline-danger {
+        .navbar-brand,
+        .nav-link,
+        .btn-outline-danger {
             color: #f8f9fa !important;
         }
 
@@ -148,21 +151,25 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .chat-card .btn-group {
-        display: flex;
-        gap: 10px;
-        justify-content: space-between;
-        align-items: center; /* Center align items vertically */
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            /* Center align items vertically */
         }
 
         .chat-card button {
-        background: #007bff;
-        color: #ffffff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 40px; /* Make the button wider */
-        transition: background 0.3s;
-        flex-grow: 1; /* Allow the button to grow and take available space */
-        text-align: center; /* Center the text */
+            background: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 40px;
+            /* Make the button wider */
+            transition: background 0.3s;
+            flex-grow: 1;
+            /* Allow the button to grow and take available space */
+            text-align: center;
+            /* Center the text */
         }
 
         .chat-card button:hover {
@@ -178,10 +185,13 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             transition: color 0.3s;
             display: flex;
             align-items: center;
-            height: 42px; /* Slightly higher than before */
-            width: 35px; /* Keep the width as is */
+            height: 42px;
+            /* Slightly higher than before */
+            width: 35px;
+            /* Keep the width as is */
             justify-content: center;
-            margin-left: auto; /* Align to the right */
+            margin-left: auto;
+            /* Align to the right */
         }
 
         .btn-delete i {
@@ -199,7 +209,8 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 10px 20px;
             font-size: 16px;
             transition: background 0.3s;
-            z-index: 1; /* Ensure the button is in the foreground */
+            z-index: 1;
+            /* Ensure the button is in the foreground */
         }
 
         .btn-new-chat:hover {
@@ -250,105 +261,119 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Willkommen, <?php echo htmlspecialchars($username); ?>!</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <button class="settings-button" id="welcomeButton">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                    <div class="dropdown-menu" id="settingsDropdown" style="display:none; position: absolute; top: 60px; right: 20px;">
-                        <a class="dropdown-item" href="/settings">Einstellungen</a>
-                        <a class="dropdown-item" href="/help">Hilfe</a>
-                        <a class="dropdown-item text-danger" href="/logout">Logout</a>
-                    </div>
-                </li>
-            </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Willkommen,
+                <?php echo htmlspecialchars($username); ?>!
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <button class="settings-button" id="welcomeButton">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <div class="dropdown-menu" id="settingsDropdown"
+                            style="display:none; position: absolute; top: 60px; right: 20px;">
+                            <a class="dropdown-item" href="/settings">Einstellungen</a>
+                            <a class="dropdown-item" href="/help">Hilfe</a>
+                            <a class="dropdown-item text-danger" href="/logout">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="main-content text-center">
-                <div class="search-bar">
-                    <form method="GET" class="d-flex w-100">
-                        <input type="text" name="search" class="form-control" placeholder="Suche nach Chats" value="<?= htmlspecialchars($search_query); ?>">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
-                    </form>
-                    <button type="button" class="btn btn-new-chat" data-bs-toggle="modal" data-bs-target="#newChatModal">Neuer Chat</button>
-                </div>
-                <h3 class="text-center mt-4"><i class="fas fa-comments icon"></i>Deine Chats</h3>
-                <div class="chats-container mt-3">
-                    <?php if (empty($chats)): ?>
-                        <p class="text-center">Keine Chats vorhanden.</p>
-                    <?php else: ?>
-                        <?php foreach ($chats as $chat): ?>
-                            <div class="chat-card">
-                                <h5><?= htmlspecialchars($chat["title"]); ?></h5>
-                                <div class="btn-group">
-                                    <form action="/chat" method="get">
-                                        <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                        <button type="submit">öffnen</button>
-                                    </form>
-                                    <form method="POST">
-                                        <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                        <button type="submit" name="delete_chat" class="btn btn-delete"><i class="fas fa-trash"></i></button>
-                                    </form>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="main-content text-center">
+                    <div class="search-bar">
+                        <form method="GET" class="d-flex w-100">
+                            <input type="text" name="search" class="form-control" placeholder="Suche nach Chats"
+                                value="<?= htmlspecialchars($search_query); ?>">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        </form>
+                        <button type="button" class="btn btn-new-chat" data-bs-toggle="modal"
+                            data-bs-target="#newChatModal">Neuer Chat</button>
+                    </div>
+                    <h3 class="text-center mt-4"><i class="fas fa-comments icon"></i>Deine Chats</h3>
+                    <div class="chats-container mt-3">
+                        <?php if (empty($chats)): ?>
+                            <p class="text-center">Keine Chats vorhanden.</p>
+                        <?php else: ?>
+                            <?php foreach ($chats as $chat): ?>
+                                <div class="chat-card">
+                                    <h5>
+                                        <?= htmlspecialchars($chat["title"]); ?>
+                                    </h5>
+                                    <div class="btn-group">
+                                        <form action="/chat" method="get">
+                                            <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
+                                            <button type="submit">öffnen</button>
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        </form>
+                                        <form method="POST">
+                                            <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
+                                            <button type="submit" name="delete_chat" class="btn btn-delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal -->
-<div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Neuer Chat</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="chat_title" class="form-label">Chat Titel</label>
-                        <input type="text" name="chat_title" class="form-control" id="chat_title" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="ai_type" class="form-label">AI-Typ</label>
-                        <select class="form-select" name="ai_type" id="ai_type" required>
-                            <option value="storyteller">Geschichtenerzähler</option>
-                            <option value="picture_to_text">Bild zu Text</option>
-                            <option value="song_writer">Song Writer</option>
-                        </select>
-                    </div>
-                    <button type="submit" name="create_chat" class="btn btn-primary">Chat Erstellen</button>
-                </form>
+    <!-- Modal -->
+    <div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Neuer Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="chat_title" class="form-label">Chat Titel</label>
+                            <input type="text" name="chat_title" class="form-control" id="chat_title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ai_type" class="form-label">AI-Typ</label>
+                            <select class="form-select" name="ai_type" id="ai_type" required>
+                                <option value="storyteller">Geschichtenerzähler</option>
+                                <option value="picture_to_text">Bild zu Text</option>
+                                <option value="song_writer">Song Writer</option>
+                            </select>
+                        </div>
+                        <button type="submit" name="create_chat" class="btn btn-primary">Chat Erstellen</button>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.getElementById('welcomeButton').addEventListener('click', function () {
-        var dropdown = document.getElementById('settingsDropdown');
-        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-            dropdown.style.display = 'block';
-        } else {
-            dropdown.style.display = 'none';
-        }
-    });
-</script>
+    <script>
+        document.getElementById('welcomeButton').addEventListener('click', function () {
+            var dropdown = document.getElementById('settingsDropdown');
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+    </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

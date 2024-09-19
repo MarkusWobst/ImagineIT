@@ -1,6 +1,7 @@
 <?php
 
 require_once "../composables/db.php";
+require_once "../composables/csrf_token.php";
 
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
@@ -8,6 +9,7 @@ $chatid = $_GET["chat_id"];
 $ai_type = "";
 $messages = [];
 
+// Get the chat messages from the database
 try {
     $chat_stmt = db()->prepare('SELECT id, ai_type FROM chat_records WHERE user_id = :userid AND id = :chatid');
     $chat_stmt->bindValue(':userid', $userid);
@@ -213,6 +215,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                         <button class="settings-button" name="toggle_dropdown">
                             <i class="fa-solid fa-bars"></i>
                         </button>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     </form>
                     <div class="dropdown-menu" id="settingsDropdown" style="display: <?= $dropdown_visible ? 'block' : 'none' ?>; position: absolute; top: 60px; right: 20px;">
                         <a class="dropdown-item" href="/index">Home</a>
@@ -240,7 +243,8 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                             <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
                             <button class="btn btn-send" type="submit" id="sendButton">Senden</button>
                         </div>
-                    </form>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    </form> 
                 </div>
                 <div class="chat-history">
                     <h5>Chat History</h5>

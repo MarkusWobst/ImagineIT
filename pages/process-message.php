@@ -1,6 +1,8 @@
 <?php
 
 require_once '../composables/db.php';
+require_once "../composables/csrf_token.php";
+
 
 $chatid = $_POST["chat_id"] ?? null;
 $_SESSION['chat_id'] = $chatid;
@@ -143,7 +145,10 @@ curl_setopt_array($ch, [
 $data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-$content = SQLite3::escapeString($data['message']['content'] ?? $data['messages'][0]['content']);
+// var_dump($data);
+// die;
+
+$content = SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']);
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
 header('Location: /chat?chat_id=' . $chatid);

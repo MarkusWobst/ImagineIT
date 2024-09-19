@@ -36,7 +36,7 @@ $route_info = route($request_uri, $routes);
 
 // check for pictures
 $folderPath = '../pictures';
-$pictureExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif']; // adjust the extensions you consider as pictures
+$pictureExtensions = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
 $files = scandir($folderPath);
 
 $displayPicture = false;

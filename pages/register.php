@@ -1,11 +1,15 @@
 <?php
 
 require_once "../composables/db.php";
+require_once "../composables/csrf_token.php";
 
 $message = '';
 $message_class = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -90,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" name="confirm_password" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Account erstellen</button>
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             </form>
             <p class="<?php echo $message_class; ?> text-center mt-3"><?php echo $message; ?></p>
             <p class="text-center mt-3">
