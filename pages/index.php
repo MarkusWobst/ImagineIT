@@ -312,8 +312,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="btn-group">
                                         <form action="/chat" method="get">
                                             <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                            <button type="submit">öffnen</button>
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            <button type="submit">öffnen</button>  
                                         </form>
                                         <form method="POST">
                                             <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
