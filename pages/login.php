@@ -1,6 +1,7 @@
 <?php
 require_once "../composables/db.php";
 require_once "../composables/login_attempts.php";
+require_once "../composables/aea.php";
 
 session_abort();
 session_start();
@@ -43,13 +44,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             resetLoginAttempts($attempts_file);
         }
 
-        if ($user && password_verify($user['salt'].$password, $user['password'])) {
+        if ($user && password_verify($user['salt'] . $password, $user['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = $user['id'];
             resetLoginAttempts($attempts_file);
-            
+
             // Encrypt the password with SHA256 and save it as a session variable
-            $_SESSION['keySHA256'] = hash('sha256', $user['pepper'].$password);
+            $userid = $user['id'];
+            $_SESSION['keySHA256'] = hash(
+                'sha256',
+                openssl_decrypt(
+                    db()->query("SELECT aeskey FROM users WHERE id = '{$userid}'")->fetchAll(),
+                    'AES-256-CBC',
+                    db()->query("SELECT pepper FROM users WHERE id = '{$userid}'")->fetchAll() . $password,
+                    0,
+                    db()->query("SELECT iv FROM users WHERE id = '{$userid}'")->fetchAll()
+                )
+            );
 
             header('Location: index.php');
             exit();

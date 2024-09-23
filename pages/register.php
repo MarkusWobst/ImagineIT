@@ -44,23 +44,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message_class = 'text-danger';
         } else {
             $salt = bin2hex(random_bytes(32));
-            $pepper = bin2hex(random_bytes(32));
+            $pepper = bin2hex(random_bytes(32));            
+            
+            $encryptionKey = random_bytes(32);
 
             $hashed_password = password_hash( $salt.$password, PASSWORD_DEFAULT);
 
             $iv = base64_encode(openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC')));
             // Add the new user to the database
-            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper) VALUES (:username, :password, :iv, :salt, :pepper)');
+            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper, aeskey) VALUES (:username, :password, :iv, :salt, :pepper, :aeskey)');
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashed_password);
             $stmt->bindValue(':iv', $iv);
             $stmt->bindValue(':salt', $salt);
             $stmt->bindValue(':pepper', $pepper);
+            $stmt->bindValue(':aeskey', openssl_encrypt($encryptionKey, 'AES-256-CBC', hash('SHA256', $pepper.$password), 0, $iv));
             $stmt->execute();
 
             // User successfully registered, set session variables and redirect to the homepage
             $_SESSION['username'] = $username;
-            $_SESSION['userid'] = db()->lastInsertId(); // Assuming 'id' is the primary key in the 'users' table
+            $_SESSION['userid'] = db()->lastInsertId();
             session_abort();
             session_start();
             header('Location: /login');

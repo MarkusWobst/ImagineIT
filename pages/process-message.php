@@ -66,6 +66,8 @@ try {
             }
 
             $imagestrings[] = base64_encode($target_file);
+            // var_dump($imagestrings);
+            // die;
         }
 
         $body = [
@@ -91,8 +93,6 @@ try {
     } else {
         throw new Exception("no file uploaded --> use normal chat");
     }
-
-    $imagestrings_combined = encrypt(implode(',', $imagestrings));
 
 } catch (\Throwable $th) {
     $fileattached = false;
@@ -124,19 +124,23 @@ if (!preg_match('/^[\p{L}\p{N}\p{P}\p{S}\p{Zs}]+$/u', $_POST['message'])) {
 }
 
 $content = encrypt(SQLite3::escapeString($_POST['message']));
+if ($fileattached) {
+    $imagestrings_combined = encrypt(implode(',', $imagestrings));
+}
 
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
 
-$username = "ollama";
-$password = "ollama-sepe";
+// $username = "ollama";
+// $password = "ollama-sepe";
 
 $ch = curl_init();
 curl_setopt_array($ch, [
-    CURLOPT_URL => 'https://ollama.programado.de/api/chat',
+    // CURLOPT_URL => 'https://ollama.programado.de/api/chat',
+    CURLOPT_URL => 'http://localhost:11434',
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
-    CURLOPT_USERPWD => "{$username}:{$password}",
+    // CURLOPT_USERPWD => "{$username}:{$password}",
     CURLOPT_POSTFIELDS => json_encode($body)
 ]);
 $data = json_decode(curl_exec($ch), true);
