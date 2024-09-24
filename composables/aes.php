@@ -22,12 +22,15 @@ function changekey($newpassword)
 {
     $userid = $_SESSION['userid'];
     $oldkey = $_SESSION['keySHA256'];
-    $iv = base64_decode(db()->query("SELECT iv FROM users WHERE id = '{$userid}'")->fetchColumn());
-    $pepper = base64_decode(db()->query("SELECT pepper FROM users WHERE id = '{$userid}'")->fetchColumn());
 
-    $aeskey = db()->query("SELECT aeskey FROM users WHERE id = '{$userid}'")->fetchAll();
+    $stuff = db()->query("SELECT iv, pepper, aeskey FROM users WHERE id = '{$userid}'")->fetchColumn();
+    $iv = base64_decode($stuff['iv']);
+    $pepper = base64_decode($stuff['pepper']);
+    $aeskey = $stuff['aeskey'];
+    
     $encryptionkey = openssl_decrypt($aeskey, 'AES-256-CBC', $oldkey, 0, $iv);
     $newaeskey = openssl_encrypt($encryptionkey, 'AES-256-CBC', hash('SHA256', $pepper.$newpassword), 0, $iv);
     db()->query("UPDATE users SET aeskey = '{$newaeskey}' WHERE id = '{$userid}'");
 }
+
 ?>

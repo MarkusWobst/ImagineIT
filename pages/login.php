@@ -1,7 +1,7 @@
 <?php
 require_once "../composables/db.php";
 require_once "../composables/login_attempts.php";
-require_once "../composables/aea.php";
+require_once "../composables/aes.php";
 
 session_abort();
 session_start();
@@ -51,15 +51,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Encrypt the password with SHA256 and save it as a session variable
             $userid = $user['id'];
-            $_SESSION['keySHA256'] = hash(
-                'sha256',
-                openssl_decrypt(
-                    db()->query("SELECT aeskey FROM users WHERE id = '{$userid}'")->fetchAll(),
-                    'AES-256-CBC',
-                    db()->query("SELECT pepper FROM users WHERE id = '{$userid}'")->fetchAll() . $password,
-                    0,
-                    db()->query("SELECT iv FROM users WHERE id = '{$userid}'")->fetchAll()
-                )
+            $_SESSION['keySHA256'] = openssl_decrypt(
+                $user['aeskey'],
+                'AES-256-CBC',
+                hash('SHA256', $user['pepper'].$password),
+                0,
+                $user['iv']
             );
 
             header('Location: index.php');
