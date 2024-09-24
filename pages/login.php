@@ -50,20 +50,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             resetLoginAttempts($attempts_file);
 
             // Encrypt the password with SHA256 and save it as a session variable
-            $userid = $user['id'];
             $_SESSION['keySHA256'] = openssl_decrypt(
                 $user['aeskey'],
                 'AES-256-CBC',
                 hash('SHA256', $user['pepper'].$password),
                 0,
-                $user['iv']
+                base64_decode($user['iv'])
             );
 
-            header('Location: index.php');
+            header('Location: index');
             exit();
         } else {
             if ($blocked) {
-                header("Location: blocked.php");
+                header("Location: blocked");
                 exit();
             }
             logAttempt($attempts_file);

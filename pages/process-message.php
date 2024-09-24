@@ -66,8 +66,6 @@ try {
             }
 
             $imagestrings[] = base64_encode($target_file);
-            // var_dump($imagestrings);
-            // die;
         }
 
         $body = [
@@ -131,16 +129,16 @@ if ($fileattached) {
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
 
-// $username = "ollama";
-// $password = "ollama-sepe";
+$username = "ollama";
+$password = "ollama-sepe";
 
 $ch = curl_init();
 curl_setopt_array($ch, [
-    // CURLOPT_URL => 'https://ollama.programado.de/api/chat',
-    CURLOPT_URL => 'http://localhost:11434',
+    CURLOPT_URL => 'https://ollama.programado.de/api/chat',
+    // CURLOPT_URL => 'http://localhost:11434',
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
-    // CURLOPT_USERPWD => "{$username}:{$password}",
+    CURLOPT_USERPWD => "{$username}:{$password}",
     CURLOPT_POSTFIELDS => json_encode($body)
 ]);
 $data = json_decode(curl_exec($ch), true);
