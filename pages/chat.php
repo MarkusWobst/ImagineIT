@@ -39,6 +39,9 @@ switch ($ai_type) {
     case 'song_writer':
         $system_prompt .= "a Song Writer AI. Please create lyrics and melodies.";
         break;
+    case 'general_chat':
+        $system_prompt .= "a General Chat AI. Please answer any question politely and helpfully.";
+        break;
     default:
         $system_prompt .= "an AI. Please assist with your specific capabilities.";
         break;
@@ -68,7 +71,6 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Type: <?= htmlspecialchars($ai_type) ?></title>
-    <!-- Bootstrap CSS -->
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
