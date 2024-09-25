@@ -6,7 +6,6 @@ $message = '';
 $message_class = '';
 
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username = $_POST['username'];
@@ -50,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashed_password = password_hash($salt . $password, PASSWORD_DEFAULT);
 
             // Add the new user to the database
-            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper, aeskey) VALUES (:username, :password, :iv, :salt, :pepper, :aeskey)');
+            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper, aeskey, credentialid, publickeybytes) VALUES (:username, :password, :iv, :salt, :pepper, :aeskey, :credentialid, :publickeybytes)');
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashed_password);
             $stmt->bindValue(':iv', base64_encode($iv));
@@ -65,14 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     0,
                     $iv
                 )
-            );
+                );
+            $stmt->bindValue(':credentialid', $data['credentialId']);
+            $stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
+            ;
             $stmt->execute();
 
             // User successfully registered, set session variables and redirect to the homepage
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = db()->lastInsertId();
-            session_abort();
-            session_start();
+
             header('Location: /login');
             exit();
         }
@@ -125,6 +126,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/cbor-js@0.1.0/cbor.min.js"></script>
+
+    <script>
+        <?php
+        if (true || $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = "fdsfds";
+            ?>
+            async function main() {
+
+                const publicKeyCredentialCreationOptions = {
+                    challenge: Uint8Array.from(
+                        "<?= base64_encode(random_bytes(32)) ?>", c => c.charCodeAt(0)),
+                    rp: {
+                        name: "ImagineIT",
+                        id: window.location.hostname,
+                    },
+                    user: {
+                        id: Uint8Array.from(
+                            "UZSL85T9AFC", c => c.charCodeAt(0)),
+                        name: "<?= $username ?>",
+                        displayName: "<?= $username ?>", //TODO
+                    },
+                    pubKeyCredParams: [], // { alg: -7, type: "public-key" }
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        "residentKey": "preferred",
+                        "requireResidentKey": false,
+                        "userVerification": "preferred"
+                    },
+                    timeout: 60000,
+                    attestation: "none",
+                    "hints": [],
+                    "extensions": {
+                        "credProps": true
+                    }
+                };
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                // decode the clientDataJSON into a utf-8 string
+                const utf8Decoder = new TextDecoder('utf-8');
+                const decodedClientData = utf8Decoder.decode(
+                    credential.response.clientDataJSON)
+
+                // parse the string as an object
+                const clientDataObj = JSON.parse(decodedClientData);
+
+                console.log("clientDataObj: " + clientDataObj)
+
+                const decodedAttestationObject = CBOR.decode(
+                    credential.response.attestationObject);
+
+                console.log("decodedAttObj: " + decodedAttestationObject);
+
+
+                const { authData } = decodedAttestationObject;
+
+                // get the length of the credential ID
+                const dataView = new DataView(
+                    new ArrayBuffer(2));
+                const idLenBytes = authData.slice(53, 55);
+                idLenBytes.forEach(
+                    (value, index) => dataView.setUint8(
+                        index, value));
+                const credentialIdLength = dataView.getUint16();
+
+                // get the credential ID
+                const credentialId = authData.slice(  //credentialId into db for users
+                    55, 55 + credentialIdLength);
+                console.log("CredID: " + credentialId)
+                // get the public key object
+                const publicKeyBytes = authData.slice(  //publicKeyBytes into db for users (Server has public key associated to user now -> User can authorize with his private key)
+                    55 + credentialIdLength);
+
+                // the publicKeyBytes are encoded again as CBOR
+                const publicKeyObject = CBOR.decode(
+                    publicKeyBytes.buffer);
+                console.log("publicKeyObject CBOR decoded: " + publicKeyObject)
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/register', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                const data = {
+                    credentialId: credentialId,
+                    publicKeyBytes: publicKeyBytes
+                };
+
+                xhr.send(JSON.stringify(data));
+            }
+            main()
+        <?php } ?>
+
+    </script>
+
 </body>
 
 </html>
+
+<?php
+// Get the sent data
+$data = json_decode(file_get_contents('php://input'), true);
+
+// Insert the data into the database
+// $stmt = db()->prepare('INSERT INTO users (credentialid, publickeybytes) VALUES (:credentialid, :publickeybytes) ');
+// $stmt->bindValue(':credentialid', $data['credentialId']);
+// $stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
+// $stmt->execute();
+?>
