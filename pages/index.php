@@ -6,6 +6,7 @@ require_once "../composables/csrf_token.php";
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
 
+
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
 if (isset($_POST['create_chat'])) {
     $chat_title = $_POST['chat_title'];
@@ -312,8 +313,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <div class="btn-group">
                                         <form action="/chat" method="get">
                                             <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">
-                                            <button type="submit">öffnen</button>
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            <button type="submit">öffnen</button>  
                                         </form>
                                         <form method="POST">
                                             <input type="hidden" name="chat_id" value="<?= $chat['id'] ?>">

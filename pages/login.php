@@ -1,6 +1,7 @@
 <?php
 require_once "../composables/db.php";
 require_once "../composables/login_attempts.php";
+require_once "../composables/aes.php";
 
 session_abort();
 session_start();
@@ -43,15 +44,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             resetLoginAttempts($attempts_file);
         }
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && password_verify($user['salt'] . $password, $user['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['userid'] = $user['id'];
             resetLoginAttempts($attempts_file);
-            header('Location: index.php');
+
+            // Encrypt the password with SHA256 and save it as a session variable
+            $_SESSION['keySHA256'] = openssl_decrypt(
+                $user['aeskey'],
+                'AES-256-CBC',
+                hash('SHA256', $user['pepper'].$password),
+                0,
+                base64_decode($user['iv'])
+            );
+
+            header('Location: index');
             exit();
         } else {
             if ($blocked) {
-                header("Location: blocked.php");
+                header("Location: blocked");
                 exit();
             }
             logAttempt($attempts_file);

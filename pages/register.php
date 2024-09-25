@@ -1,7 +1,6 @@
 <?php
 
 require_once "../composables/db.php";
-require_once "../composables/csrf_token.php";
 
 $message = '';
 $message_class = '';
@@ -9,7 +8,7 @@ $message_class = '';
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -43,18 +42,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Der Benutzername ist bereits vergeben.';
             $message_class = 'text-danger';
         } else {
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $salt = bin2hex(random_bytes(32));
+            $pepper = bin2hex(random_bytes(32));
+            $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+            $encryptionKey = random_bytes(32);
+
+            $hashed_password = password_hash($salt . $password, PASSWORD_DEFAULT);
 
             // Add the new user to the database
-            $stmt = db()->prepare('INSERT INTO users (username, password) VALUES (:username, :password)');
+            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper, aeskey) VALUES (:username, :password, :iv, :salt, :pepper, :aeskey)');
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashed_password);
+            $stmt->bindValue(':iv', base64_encode($iv));
+            $stmt->bindValue(':salt', $salt);
+            $stmt->bindValue(':pepper', $pepper);
+            $stmt->bindValue(
+                ':aeskey',
+                openssl_encrypt(
+                    $encryptionKey,
+                    'AES-256-CBC',
+                    hash('SHA256', $pepper . $password),
+                    0,
+                    $iv
+                )
+            );
             $stmt->execute();
 
             // User successfully registered, set session variables and redirect to the homepage
             $_SESSION['username'] = $username;
-            $_SESSION['userid'] = db()->lastInsertId(); // Assuming 'id' is the primary key in the 'users' table
-            header('Location: /index');
+            $_SESSION['userid'] = db()->lastInsertId();
+            session_abort();
+            session_start();
+            header('Location: /login');
             exit();
         }
     }
@@ -63,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,33 +95,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <h2 class="text-center">Account erstellen</h2>
-            <form action="/register" method="POST" class="form-signin">
-                <div class="form-group mb-3">
-                    <label for="username" class="form-label">Benutzername</label>
-                    <input type="text" name="username" class="form-control" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="password" class="form-label">Passwort</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="confirm_password" class="form-label">Passwort bestätigen</label>
-                    <input type="password" name="confirm_password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Account erstellen</button>
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            </form>
-            <p class="<?php echo $message_class; ?> text-center mt-3"><?php echo $message; ?></p>
-            <p class="text-center mt-3">
-                Bereits ein Konto? <a href="/login">Hier einloggen</a>
-            </p>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center">Account erstellen</h2>
+                <form action="/register" method="POST" class="form-signin">
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Benutzername</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="confirm_password" class="form-label">Passwort bestätigen</label>
+                        <input type="password" name="confirm_password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Account erstellen</button>
+                </form>
+                <p class="<?php echo $message_class; ?> text-center mt-3">
+                    <?php echo $message; ?>
+                </p>
+                <p class="text-center mt-3">
+                    Bereits ein Konto? <a href="/login">Hier einloggen</a>
+                </p>
+            </div>
         </div>
     </div>
-</div>
 </body>
+
 </html>

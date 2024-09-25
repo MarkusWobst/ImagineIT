@@ -2,6 +2,7 @@
 
 require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
+require_once "../composables/aes.php";
 
 
 $username = $_SESSION['username'];
@@ -52,6 +53,9 @@ if (isset($_POST['change_password'])) {
             $stmt->bindValue(':password', $new_password_hashed);
             $stmt->bindValue(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
+
+            // change decryption key
+            changekey($new_password);
 
             header('Location: /settings');
             exit();
