@@ -2,34 +2,18 @@
 
 require_once '../composables/db.php';
 require_once "../composables/csrf_token.php";
-
-// Check if a session is already started before calling session_start()
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+require_once "../composables/aes.php";
 
 $chatid = $_POST["chat_id"] ?? null;
+$_SESSION['chat_id'] = $chatid;
 $userid = $_SESSION['userid'];
 
-// Initialize the response_received flag if not set
-if (!isset($_SESSION['response_received'])) {
-    $_SESSION['response_received'] = true;
-}
-
+$messages = [];
 if ($chatid) {
-    // Check if a response has been received
-    if (!$_SESSION['response_received']) {
-        header('Location: /chat?chat_id=' . $chatid);
-        exit();
-    }
-
     $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$chatid}' ORDER BY created_at")->fetchAll();
 } else {
     db()->exec("INSERT INTO `chat_records` (title, user_id) VALUES ('Neuer Chat', {$userid})");
     $chatid = db()->lastInsertId();
-    $_SESSION['chat_id'] = $chatid;
-    $_SESSION['response_received'] = true; // Allow the first message to be sent
-    $messages = [];
 }
 
 // Fetch the AI type and generate system prompt
@@ -66,14 +50,17 @@ try {
             $target_file = file_get_contents($tmp_name);
             $imageFileType = mime_content_type($tmp_name);
 
+            // Check if file already exists
             if (!file_exists($tmp_name)) {
                 throw new Exception("no file uploaded --> use normal chat");
             }
 
+            // Check file size
             if ($_FILES["images"]["size"][$key] > 5000000) {
                 throw new Exception("file is too large");
             }
 
+            // Allow certain file formats using regex
             if (!preg_match('/^image\/(jpg|jpeg|png)$/', $imageFileType)) {
                 throw new Exception("file isn't the right format");
             }
@@ -107,6 +94,7 @@ try {
 
 } catch (\Throwable $th) {
     $fileattached = false;
+
     $body = [
         'model' => 'llava-phi3',
         'stream' => false,
@@ -141,37 +129,25 @@ if ($fileattached) {
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
 
-// Set the response_received flag to false
-$_SESSION['response_received'] = false;
-
 $username = "ollama";
 $password = "ollama-sepe";
 
 $ch = curl_init();
 curl_setopt_array($ch, [
     CURLOPT_URL => 'https://ollama.programado.de/api/chat',
+    // CURLOPT_URL => 'http://localhost:11434',
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
     CURLOPT_USERPWD => "{$username}:{$password}",
     CURLOPT_POSTFIELDS => json_encode($body)
 ]);
-
-$response = curl_exec($ch);
-
-if (curl_errno($ch)) {
-    error_log('Curl error: ' . curl_error($ch));
-}
-
-$data = json_decode($response, true);
-error_log('API Response: ' . print_r($data, true));
+$data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
 $content = encrypt(SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']));
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
-// Set the response_received flag to true
-$_SESSION['response_received'] = true;
-
 header('Location: /chat?chat_id=' . $chatid);
+
 exit();
 ?>
