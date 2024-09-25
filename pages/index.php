@@ -352,6 +352,7 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="mb-3">
                             <label for="ai_type" class="form-label">AI-Typ</label>
                             <select class="form-select" name="ai_type" id="ai_type" required>
+                                <option value="general_chat">Chat</option>
                                 <option value="storyteller">Geschichtenerzähler</option>
                                 <option value="picture_to_text">Bild zu Text</option>
                                 <option value="song_writer">Song Writer</option>

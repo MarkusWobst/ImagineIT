@@ -43,6 +43,9 @@ switch ($ai_type) {
     case 'song_writer':
         $system_prompt .= "a Song Writer AI. Please create lyrics and melodies.";
         break;
+    case 'general_chat':
+        $system_prompt .= "a General Chat AI. Please answer any question politely and helpfully.";
+        break;
     default:
         $system_prompt .= "an AI. Please assist with your specific capabilities.";
         break;
