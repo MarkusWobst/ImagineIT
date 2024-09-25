@@ -50,17 +50,14 @@ try {
             $target_file = file_get_contents($tmp_name);
             $imageFileType = mime_content_type($tmp_name);
 
-            // Check if file already exists
             if (!file_exists($tmp_name)) {
                 throw new Exception("no file uploaded --> use normal chat");
             }
 
-            // Check file size
             if ($_FILES["images"]["size"][$key] > 5000000) {
                 throw new Exception("file is too large");
             }
 
-            // Allow certain file formats using regex
             if (!preg_match('/^image\/(jpg|jpeg|png)$/', $imageFileType)) {
                 throw new Exception("file isn't the right format");
             }
@@ -94,7 +91,6 @@ try {
 
 } catch (\Throwable $th) {
     $fileattached = false;
-
     $body = [
         'model' => 'llava-phi3',
         'stream' => false,
@@ -135,19 +131,25 @@ $password = "ollama-sepe";
 $ch = curl_init();
 curl_setopt_array($ch, [
     CURLOPT_URL => 'https://ollama.programado.de/api/chat',
-    // CURLOPT_URL => 'http://localhost:11434',
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
     CURLOPT_USERPWD => "{$username}:{$password}",
     CURLOPT_POSTFIELDS => json_encode($body)
 ]);
-$data = json_decode(curl_exec($ch), true);
+
+$response = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    error_log('Curl error: ' . curl_error($ch));
+}
+
+$data = json_decode($response, true);
+error_log('API Response: ' . print_r($data, true));
 curl_close($ch);
 
 $content = encrypt(SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']));
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
 
 header('Location: /chat?chat_id=' . $chatid);
-
 exit();
 ?>

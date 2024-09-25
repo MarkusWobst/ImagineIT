@@ -235,7 +235,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         <div class="col-md-12">
             <div class="main-content">
                 <div class="card-footer">
-                    <form action="/process-message" method="post" enctype="multipart/form-data">
+                    <form id="messageForm" action="/process-message" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">
@@ -245,7 +245,7 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
                             <button class="btn btn-send" type="submit" id="sendButton">Senden</button>
                         </div>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    </form> 
+                    </form>
                 </div>
                 <div class="chat-history">
                     <h5>Chat History</h5>
@@ -271,14 +271,17 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
     </div>
 </div>
 
+<!-- JavaScript wird hier platziert -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const messageForm = document.getElementById('messageForm');
-    const sendButton = document.getElementById('sendButton');
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageForm = document.getElementById('messageForm');
+        const sendButton = document.getElementById('sendButton');
 
-    messageForm.addEventListener('submit', function() {
-        sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Senden...';
-        sendButton.disabled = true;
+        messageForm.addEventListener('submit', function() {
+            sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Senden...';
+            sendButton.disabled = true;
+        });
     });
 </script>
 
