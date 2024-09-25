@@ -1,12 +1,14 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Start the session if it hasn't been started already
+}
 
 require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
 require_once "../composables/aes.php";
 
-
-$username = $_SESSION['username'];
-$userid = $_SESSION['userid'];
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Gast'; // Default to 'Gast' if not set
+$userid = isset($_SESSION['userid']) ? $_SESSION['userid'] : null;
 $show_confirmation = false;
 $error_message = "";
 
@@ -89,7 +91,6 @@ if (isset($_POST['delete_account'])) {
 
 // Pass $show_confirmation value to JavaScript
 echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</script>";
-
 ?>
 
 <!DOCTYPE html>
@@ -378,26 +379,39 @@ echo "<script>var showConfirmation = " . json_encode($show_confirmation) . ";</s
 </div>
 
 <script>
-    document.getElementById('welcomeButton').addEventListener('click', function () {
+    document.getElementById('welcomeButton').addEventListener('click', function (event) {
         var dropdown = document.getElementById('settingsDropdown');
         if (dropdown.style.display === 'none' || dropdown.style.display === '') {
             dropdown.style.display = 'block';
         } else {
             dropdown.style.display = 'none';
         }
+        event.stopPropagation(); // Prevent the click from propagating to the document
     });
-</script>
 
-<script>
+    document.addEventListener('click', function (event) {
+        var dropdown = document.getElementById('settingsDropdown');
+        if (!dropdown.contains(event.target) && !document.getElementById('welcomeButton').contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         if (showConfirmation) {
-            document.getElementById('confirmation-overlay').style.display = 'flex';
-        }
+            document.getElementById('confirmation-overlay').style.display = 'flex';        }
 
-        document.getElementById('close-btn').addEventListener('click', function () {
-            document.getElementById('confirmation-overlay').style.display = 'none';
-        });
-    });
+document.getElementById('close-btn').addEventListener('click', function () {
+    document.getElementById('confirmation-overlay').style.display = 'none';
+});
+
+document.addEventListener('click', function (event) {
+    var overlay = document.getElementById('confirmation-overlay');
+    var confirmationForm = document.querySelector('.confirmation-form');
+    if (overlay.style.display === 'flex' && !confirmationForm.contains(event.target) && !event.target.closest('.btn-danger')) {
+        overlay.style.display = 'none';
+    }
+});
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

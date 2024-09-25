@@ -3,9 +3,12 @@
 require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Start the session if it hasn't been started already
+}
+
 $username = $_SESSION['username'];
 $userid = $_SESSION['userid'];
-
 
 // Prüfe, ob der Button "Neuer Chat" gedrückt wurde
 if (isset($_POST['create_chat'])) {
@@ -363,11 +366,19 @@ $chats = $chat_stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script>
-        document.getElementById('welcomeButton').addEventListener('click', function () {
+        document.getElementById('welcomeButton').addEventListener('click', function (event) {
             var dropdown = document.getElementById('settingsDropdown');
             if (dropdown.style.display === 'none' || dropdown.style.display === '') {
                 dropdown.style.display = 'block';
             } else {
+                dropdown.style.display = 'none';
+            }
+            event.stopPropagation(); // Prevent the click from propagating to the document
+        });
+
+        document.addEventListener('click', function (event) {
+            var dropdown = document.getElementById('settingsDropdown');
+            if (!dropdown.contains(event.target) && !document.getElementById('welcomeButton').contains(event.target)) {
                 dropdown.style.display = 'none';
             }
         });
