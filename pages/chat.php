@@ -4,6 +4,10 @@ require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
 require_once "../composables/aes.php";
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Start the session if it hasn't been started already
+}
+
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
@@ -284,6 +288,23 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         messageForm.addEventListener('submit', function() {
             sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Senden...';
             sendButton.disabled = true;
+        });
+
+        document.getElementById('welcomeButton').addEventListener('click', function (event) {
+            var dropdown = document.getElementById('settingsDropdown');
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+            event.stopPropagation(); // Prevent the click from propagating to the document
+        });
+
+        document.addEventListener('click', function (event) {
+            var dropdown = document.getElementById('settingsDropdown');
+            if (!dropdown.contains(event.target) && !document.getElementById('welcomeButton').contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
         });
     });
 </script>
