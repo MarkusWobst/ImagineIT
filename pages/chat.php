@@ -3,6 +3,11 @@
 require_once "../composables/db.php";
 require_once "../composables/csrf_token.php";
 
+// Check if a session is already started before calling session_start()
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 $userid = $_SESSION['userid'];
 $chatid = $_GET["chat_id"];
 
@@ -57,6 +62,9 @@ if (isset($_POST['toggle_dropdown'])) {
 
 // Determine dropdown visibility
 $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_visible'];
+
+// Check if a response has been received
+$response_received = isset($_SESSION['response_received']) && $_SESSION['response_received'];
 
 ?>
 
@@ -234,14 +242,14 @@ $dropdown_visible = isset($_SESSION['dropdown_visible']) && $_SESSION['dropdown_
         <div class="col-md-12">
             <div class="main-content">
                 <div class="card-footer">
-                    <form action="/process-message" method="post" enctype="multipart/form-data">
+                    <form action="/process-message.php" method="post" enctype="multipart/form-data" id="messageForm">
                         <input type="hidden" name="chat_id" value="<?= $_GET['chat_id'] ?>">
                         <input type="hidden" name="system_prompt" value="<?= htmlspecialchars($system_prompt) ?>">
                         <div class="input-group">
-                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required>
-                            <input type="file" class="form-control input-sm" name="images[]" id="file-input" multiple>
-                            <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();"><i class="fas fa-upload"></i></button>
-                            <button class="btn btn-send" type="submit" id="sendButton">Senden</button>
+                            <input type="text" class="form-control" name="message" placeholder="Nachricht ..." required <?= $response_received ? '' : 'disabled' ?>>
+                            <input type="file" class="form-control input-sm" name="images[]" id="file-input" multiple <?= $response_received ? '' : 'disabled' ?>>
+                            <button class="btn btn-upload" type="button" onclick="document.getElementById('file-input').click();" <?= $response_received ? '' : 'disabled' ?>><i class="fas fa-upload"></i></button>
+                            <button class="btn btn-send" type="submit" id="sendButton" <?= $response_received ? '' : 'disabled' ?>>Senden</button>
                         </div>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     </form> 

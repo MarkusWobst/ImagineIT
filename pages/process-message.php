@@ -3,17 +3,33 @@
 require_once '../composables/db.php';
 require_once "../composables/csrf_token.php";
 
+// Check if a session is already started before calling session_start()
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $chatid = $_POST["chat_id"] ?? null;
-$_SESSION['chat_id'] = $chatid;
 $userid = $_SESSION['userid'];
 
-$messages = [];
+// Initialize the response_received flag if not set
+if (!isset($_SESSION['response_received'])) {
+    $_SESSION['response_received'] = true;
+}
+
 if ($chatid) {
+    // Check if a response has been received
+    if (!$_SESSION['response_received']) {
+        header('Location: /chat?chat_id=' . $chatid);
+        exit();
+    }
+
     $messages = db()->query("SELECT * FROM `messages` WHERE `chat_id` = '{$chatid}' ORDER BY created_at")->fetchAll();
 } else {
     db()->exec("INSERT INTO `chat_records` (title, user_id) VALUES ('Neuer Chat', {$userid})");
     $chatid = db()->lastInsertId();
+    $_SESSION['chat_id'] = $chatid;
+    $_SESSION['response_received'] = true; // Allow the first message to be sent
+    $messages = [];
 }
 
 // Fetch the AI type and generate system prompt
@@ -92,12 +108,6 @@ try {
         throw new Exception("no file uploaded --> use normal chat");
     }
 
-    // $body['messages'][] = [
-    //     'role' => 'user',
-    //     'content' => $_POST['message'],
-    //     'images' => [$imagestring],
-    // ];
-
 } catch (\Throwable $th) {
     $fileattached = false;
 
@@ -131,6 +141,9 @@ $imagestrings_combined = implode(',', $imagestrings);
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at, images) 
     VALUES ({$chatid}, 'user', '{$content}', CURRENT_TIMESTAMP, '{$imagestrings_combined}')");
 
+// Set the response_received flag to false
+$_SESSION['response_received'] = false;
+
 $username = "ollama";
 $password = "ollama-sepe";
 
@@ -145,11 +158,11 @@ curl_setopt_array($ch, [
 $data = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-// var_dump($data);
-// die;
-
 $content = SQLite3::escapeString($data['message']['content'] ?? $data['message'][0]['content']);
 $messages = db()->exec("INSERT INTO messages (chat_id, role, content, created_at) VALUES ({$chatid}, 'assistant', '{$content}', CURRENT_TIMESTAMP)");
+
+// Set the response_received flag to true
+$_SESSION['response_received'] = true;
 
 header('Location: /chat?chat_id=' . $chatid);
 
