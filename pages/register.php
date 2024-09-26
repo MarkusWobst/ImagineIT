@@ -172,13 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // parse the string as an object
             const clientDataObj = JSON.parse(decodedClientData);
 
-            console.log("clientDataObj: " + clientDataObj)
-
             const decodedAttestationObject = CBOR.decode(
                 credential.response.attestationObject);
-
-            console.log("decodedAttObj: " + decodedAttestationObject);
-
 
             const { authData } = decodedAttestationObject;
 
@@ -194,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // get the credential ID
             const credentialId = authData.slice(  //credentialId into db for users
                 55, 55 + credentialIdLength);
-            console.log("CredID: " + credentialId)
+            // console.log("CredID: " + credentialId)
             // get the public key object
             const publicKeyBytes = authData.slice(  //publicKeyBytes into db for users (Server has public key associated to user now -> User can authorize with his private key)
                 55 + credentialIdLength);
@@ -202,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // the publicKeyBytes are encoded again as CBOR
             const publicKeyObject = CBOR.decode(
                 publicKeyBytes.buffer);
-            console.log("publicKeyObject CBOR decoded: " + publicKeyObject)
+            // console.log("publicKeyObject CBOR decoded: " + publicKeyObject)
 
             const response = await fetch("/create-user", {
                 method: "POST",
