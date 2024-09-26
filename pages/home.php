@@ -105,6 +105,11 @@
             background-color: #ffffff;
             border-color: #ffffff;
         }
+
+        .about-section {
+            margin-top: 150px; /* Adjust the margin to push the section down */
+            padding-top: 50px; /* Add some padding at the top */
+        }
     </style>
 </head>
 
@@ -120,6 +125,9 @@
         </div>
 
         <div class="row">
+            <div class="col-12 text-center mb-4">
+                <p>Beispiele für AI-generierte Geschichten:</p>
+            </div>
             <div class="col-md-4">
                 <div class="info-card">
                     <div class="flip-card-inner">
@@ -158,6 +166,23 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="row about-section">
+            <div class="col-12">
+                <h2>Über ImagineIT</h2>
+                <p>ImagineIT ist eine innovative Plattform, die künstliche Intelligenz nutzt, um Bilder in faszinierende Geschichten zu verwandeln. Unsere Mission ist es, Ihre Kreativität zu fördern und Ihnen zu helfen, Ihre Ideen zum Leben zu erwecken. Mit ImagineIT können Sie:</p>
+                <ul>
+                    <li>AI-generierte Bilder in spannende Geschichten umwandeln</li>
+                    <li>Eigene Geschichten mit passenden Bildern erstellen</li>
+                    <li>Ihre Kreationen mit der Community teilen</li>
+                    <li>Inspiration aus den Geschichten anderer Nutzer schöpfen</li>
+                </ul>
+                <p>Unsere Plattform ist benutzerfreundlich und bietet eine Vielzahl von Tools, um Ihre kreativen Projekte zu unterstützen. Egal, ob Sie ein erfahrener Geschichtenerzähler oder ein Anfänger sind, ImagineIT bietet Ihnen die Ressourcen, die Sie benötigen, um Ihre Visionen zu verwirklichen.</p>
+                <p>ImagineIT bietet eine einzigartige Möglichkeit, Ihre kreativen Fähigkeiten zu erweitern und Ihre Geschichten auf eine neue, visuell ansprechende Weise zu präsentieren. Unsere AI-Technologie analysiert Ihre Bilder und generiert automatisch spannende und passende Geschichten, die Ihre Bilder zum Leben erwecken. Sie können auch Ihre eigenen Geschichten schreiben und passende Bilder aus unserer umfangreichen Bibliothek auswählen.</p>
+                <p>Unsere Community ist ein integraler Bestandteil von ImagineIT. Teilen Sie Ihre Kreationen mit anderen Nutzern, erhalten Sie Feedback und lassen Sie sich von den Geschichten und Bildern anderer inspirieren. Unsere Plattform fördert den Austausch von Ideen und die Zusammenarbeit, um gemeinsam großartige Geschichten zu schaffen.</p>
+                <p>Registrieren Sie sich noch heute und beginnen Sie Ihre Reise mit ImagineIT! Entdecken Sie die unendlichen Möglichkeiten, die unsere Plattform bietet, und lassen Sie Ihrer Kreativität freien Lauf. Wir freuen uns darauf, Ihre Geschichten zu sehen und gemeinsam mit Ihnen die Welt der Bilder und Geschichten zu erkunden.</p>
             </div>
         </div>
     </div>
