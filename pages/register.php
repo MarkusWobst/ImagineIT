@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     0,
                     $iv
                 )
-                );
+            );
             $stmt->bindValue(':credentialid', $data['credentialId']);
             $stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
             ;
@@ -131,110 +131,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/cbor-js@0.1.0/cbor.min.js"></script>
 
     <script>
-        <?php
-        if (true || $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = "fdsfds";
-            ?>
-            async function main() {
+        async function main() {
 
-                const publicKeyCredentialCreationOptions = {
-                    challenge: Uint8Array.from(
-                        "<?= base64_encode(random_bytes(32)) ?>", c => c.charCodeAt(0)),
-                    rp: {
-                        name: "ImagineIT",
-                        id: window.location.hostname,
-                    },
-                    user: {
-                        id: Uint8Array.from(
-                            "UZSL85T9AFC", c => c.charCodeAt(0)),
-                        name: "<?= $username ?>",
-                        displayName: "<?= $username ?>", //TODO
-                    },
-                    pubKeyCredParams: [], // { alg: -7, type: "public-key" }
-                    authenticatorSelection: {
-                        authenticatorAttachment: "platform",
-                        "residentKey": "preferred",
-                        "requireResidentKey": false,
-                        "userVerification": "preferred"
-                    },
-                    timeout: 60000,
-                    attestation: "none",
-                    "hints": [],
-                    "extensions": {
-                        "credProps": true
-                    }
-                };
-                const credential = await navigator.credentials.create({
-                    publicKey: publicKeyCredentialCreationOptions
-                });
+            const publicKeyCredentialCreationOptions = {
+                challenge: Uint8Array.from(
+                    "<?= base64_encode(random_bytes(32)) ?>", c => c.charCodeAt(0)),
+                rp: {
+                    name: "ImagineIT",
+                    id: window.location.hostname,
+                },
+                user: {
+                    id: Uint8Array.from(
+                        "UZSL85T9AFC", c => c.charCodeAt(0)),
+                    name: "<?= $username ?>",
+                    displayName: "<?= $username ?>", //TODO
+                },
+                pubKeyCredParams: [], // { alg: -7, type: "public-key" }
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    "residentKey": "preferred",
+                    "requireResidentKey": false,
+                    "userVerification": "preferred"
+                },
+                timeout: 60000,
+                attestation: "none",
+                "hints": [],
+                "extensions": {
+                    "credProps": true
+                }
+            };
+            const credential = await navigator.credentials.create({
+                publicKey: publicKeyCredentialCreationOptions
+            });
 
-                // decode the clientDataJSON into a utf-8 string
-                const utf8Decoder = new TextDecoder('utf-8');
-                const decodedClientData = utf8Decoder.decode(
-                    credential.response.clientDataJSON)
+            // decode the clientDataJSON into a utf-8 string
+            const utf8Decoder = new TextDecoder('utf-8');
+            const decodedClientData = utf8Decoder.decode(
+                credential.response.clientDataJSON)
 
-                // parse the string as an object
-                const clientDataObj = JSON.parse(decodedClientData);
+            // parse the string as an object
+            const clientDataObj = JSON.parse(decodedClientData);
 
-                console.log("clientDataObj: " + clientDataObj)
+            console.log("clientDataObj: " + clientDataObj)
 
-                const decodedAttestationObject = CBOR.decode(
-                    credential.response.attestationObject);
+            const decodedAttestationObject = CBOR.decode(
+                credential.response.attestationObject);
 
-                console.log("decodedAttObj: " + decodedAttestationObject);
+            console.log("decodedAttObj: " + decodedAttestationObject);
 
 
-                const { authData } = decodedAttestationObject;
+            const { authData } = decodedAttestationObject;
 
-                // get the length of the credential ID
-                const dataView = new DataView(
-                    new ArrayBuffer(2));
-                const idLenBytes = authData.slice(53, 55);
-                idLenBytes.forEach(
-                    (value, index) => dataView.setUint8(
-                        index, value));
-                const credentialIdLength = dataView.getUint16();
+            // get the length of the credential ID
+            const dataView = new DataView(
+                new ArrayBuffer(2));
+            const idLenBytes = authData.slice(53, 55);
+            idLenBytes.forEach(
+                (value, index) => dataView.setUint8(
+                    index, value));
+            const credentialIdLength = dataView.getUint16();
 
-                // get the credential ID
-                const credentialId = authData.slice(  //credentialId into db for users
-                    55, 55 + credentialIdLength);
-                console.log("CredID: " + credentialId)
-                // get the public key object
-                const publicKeyBytes = authData.slice(  //publicKeyBytes into db for users (Server has public key associated to user now -> User can authorize with his private key)
-                    55 + credentialIdLength);
+            // get the credential ID
+            const credentialId = authData.slice(  //credentialId into db for users
+                55, 55 + credentialIdLength);
+            console.log("CredID: " + credentialId)
+            // get the public key object
+            const publicKeyBytes = authData.slice(  //publicKeyBytes into db for users (Server has public key associated to user now -> User can authorize with his private key)
+                55 + credentialIdLength);
 
-                // the publicKeyBytes are encoded again as CBOR
-                const publicKeyObject = CBOR.decode(
-                    publicKeyBytes.buffer);
-                console.log("publicKeyObject CBOR decoded: " + publicKeyObject)
+            // the publicKeyBytes are encoded again as CBOR
+            const publicKeyObject = CBOR.decode(
+                publicKeyBytes.buffer);
+            console.log("publicKeyObject CBOR decoded: " + publicKeyObject)
 
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/register', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-
-                const data = {
+            const response = await fetch("/create-user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
                     credentialId: credentialId,
-                    publicKeyBytes: publicKeyBytes
-                };
-
-                xhr.send(JSON.stringify(data));
+                    publicKeyBytes: publicKeyBytes,
+                    username: "<?= $username ?>",
+                })
+            })
+            const data = await response.json()
+            if (data.success) {
+                window.location.href = '/login'
             }
-            main()
-        <?php } ?>
+        }
+
+        <?php
+
+        $message = '';
+        $message_class = '';
+
+        // Regex patterns
+        $username_pattern = '/^[\w!@#$%^&*()\-+=]{3,16}$/'; // Alphanumeric, underscores, and special characters, 3-16 characters
+        $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()\-+=]{8,}$/'; // Minimum 8 characters, at least one letter, one number, and special characters
+        
+        // Validate username
+        if (!preg_match($username_pattern, $username)) {
+            $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen, Unterstriche und Sonderzeichen enthalten.';
+            $message_class = 'text-danger';
+        }
+        // Validate password
+        elseif (!preg_match($password_pattern, $password)) {
+            $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten.';
+            $message_class = 'text-danger';
+        }
+        // Check if passwords match
+        elseif ($password !== $confirm_password) {
+            $message = 'Die Passwörter stimmen nicht überein.';
+            $message_class = 'text-danger';
+        } else {
+            // Check if username already exists
+            $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
+            $stmt->bindValue(':username', $username);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                $message = 'Der Benutzername ist bereits vergeben.';
+                $message_class = 'text-danger';
+            } else {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    ?>
+                    main()
+                <?php }
+            }
+        } ?>
 
     </script>
 
 </body>
 
 </html>
-
-<?php
-// Get the sent data
-$data = json_decode(file_get_contents('php://input'), true);
-
-// Insert the data into the database
-// $stmt = db()->prepare('INSERT INTO users (credentialid, publickeybytes) VALUES (:credentialid, :publickeybytes) ');
-// $stmt->bindValue(':credentialid', $data['credentialId']);
-// $stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
-// $stmt->execute();
-?>

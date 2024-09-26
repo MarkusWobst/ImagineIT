@@ -24,6 +24,8 @@ $routes = [
     'process-message.php' => 'process-message.php',
     'logout' => 'logout.php',
     'logout.php' => 'logout.php',
+    'create-user' => 'create-user.php',
+    'create-user.php' => 'create-user.php',
 ];
 
 $chatid = $_GET["chat_id"] ?? null;
