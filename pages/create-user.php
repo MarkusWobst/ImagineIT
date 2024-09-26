@@ -1,13 +1,12 @@
 <?php
 
 require_once "../composables/db.php";
+$data = json_decode(file_get_contents('php://input'), true);
 
-
-$username = $_POST['username'];
-$password = $_POST['password'];
-$confirm_password = $_POST['confirm_password'];
-$credentialid = $asdf;
-$publickeybytes = $asdf;
+$username = $data['username'];
+$password = $data['password'];
+$credentialId = $data['credentialId'];
+$publicKeyBytes = $data['publicKeyBytes'];
 
 $salt = bin2hex(random_bytes(32));
 $pepper = bin2hex(random_bytes(32));
@@ -33,10 +32,11 @@ $stmt->bindValue(
         $iv
     )
 );
-$stmt->bindValue(':credentialid', $data['credentialId']);
-$stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
-;
+$stmt->bindValue(':credentialid', json_encode($data['credentialId']));
+$stmt->bindValue(':publickeybytes', json_encode($data['publicKeyBytes']));
 $stmt->execute();
+var_dump($stmt);
+die;
 
 // User successfully registered, set session variables and redirect to the homepage
 $_SESSION['username'] = $username;

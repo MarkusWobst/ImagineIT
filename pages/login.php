@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['keySHA256'] = openssl_decrypt(
                 $user['aeskey'],
                 'AES-256-CBC',
-                hash('SHA256', $user['pepper'].$password),
+                hash('SHA256', $user['pepper'] . $password),
                 0,
                 base64_decode($user['iv'])
             );
@@ -114,7 +114,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
     <script>
-        
+        async function main() {
+            const publicKeyCredentialRequestOptions = {
+                challenge: Uint8Array.from(
+                    "<?= base64_encode(random_bytes(32)) ?>", c => c.charCodeAt(0)),,
+                allowCredentials: [{
+                    id: Uint8Array.from(
+                        "UZSL85T9AFC", c => c.charCodeAt(0)),
+                    type: 'public-key',
+                    transports: ['usb', 'ble', 'nfc'],
+                }],
+                timeout: 60000,
+            }
+
+            const assertion = await navigator.credentials.get({
+                publicKey: publicKeyCredentialRequestOptions
+            });
+        }
+
+        <?php
+        if (true) {
+            ?>
+            main()
+            <?php
+        }
+        ?>
     </script>
 </body>
 

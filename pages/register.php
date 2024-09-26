@@ -1,84 +1,7 @@
 <?php
-
 require_once "../composables/db.php";
-
 $message = '';
 $message_class = '';
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-
-    // Regex patterns
-    $username_pattern = '/^[\w!@#$%^&*()\-+=]{3,16}$/'; // Alphanumeric, underscores, and special characters, 3-16 characters
-    $password_pattern = '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()\-+=]{8,}$/'; // Minimum 8 characters, at least one letter, one number, and special characters
-
-    // Validate username
-    if (!preg_match($username_pattern, $username)) {
-        $message = 'Der Benutzername muss 3-16 Zeichen lang sein und darf nur Buchstaben, Zahlen, Unterstriche und Sonderzeichen enthalten.';
-        $message_class = 'text-danger';
-    }
-    // Validate password
-    elseif (!preg_match($password_pattern, $password)) {
-        $message = 'Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten.';
-        $message_class = 'text-danger';
-    }
-    // Check if passwords match
-    elseif ($password !== $confirm_password) {
-        $message = 'Die Passwörter stimmen nicht überein.';
-        $message_class = 'text-danger';
-    } else {
-        // Check if username already exists
-        $stmt = db()->prepare('SELECT * FROM users WHERE username = :username');
-        $stmt->bindValue(':username', $username);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user) {
-            $message = 'Der Benutzername ist bereits vergeben.';
-            $message_class = 'text-danger';
-        } else {
-            $salt = bin2hex(random_bytes(32));
-            $pepper = bin2hex(random_bytes(32));
-            $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
-            $encryptionKey = random_bytes(32);
-
-            $hashed_password = password_hash($salt . $password, PASSWORD_DEFAULT);
-
-            // Add the new user to the database
-            $stmt = db()->prepare('INSERT INTO users (username, password, iv, salt, pepper, aeskey, credentialid, publickeybytes) VALUES (:username, :password, :iv, :salt, :pepper, :aeskey, :credentialid, :publickeybytes)');
-            $stmt->bindValue(':username', $username);
-            $stmt->bindValue(':password', $hashed_password);
-            $stmt->bindValue(':iv', base64_encode($iv));
-            $stmt->bindValue(':salt', $salt);
-            $stmt->bindValue(':pepper', $pepper);
-            $stmt->bindValue(
-                ':aeskey',
-                openssl_encrypt(
-                    $encryptionKey,
-                    'AES-256-CBC',
-                    hash('SHA256', $pepper . $password),
-                    0,
-                    $iv
-                )
-            );
-            $stmt->bindValue(':credentialid', $data['credentialId']);
-            $stmt->bindValue(':publickeybytes', $data['publicKeyBytes']);
-            ;
-            $stmt->execute();
-
-            // User successfully registered, set session variables and redirect to the homepage
-            $_SESSION['username'] = $username;
-            $_SESSION['userid'] = db()->lastInsertId();
-
-            header('Location: /login');
-            exit();
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -143,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 user: {
                     id: Uint8Array.from(
                         "UZSL85T9AFC", c => c.charCodeAt(0)),
-                    name: "<?= $username ?>",
-                    displayName: "<?= $username ?>", //TODO
+                    name: "<?= $_POST['username'] ?? '' ?>", //beide gleich
+                    displayName: "<?= isset($_POST['username']) ? $_POST['username'] : '' ?>", 
                 },
                 pubKeyCredParams: [], // { alg: -7, type: "public-key" }
                 authenticatorSelection: {
@@ -205,9 +128,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
+                    username: "<?= $_POST['username'] ?? '' ?>",
+                    password: "<?= $_POST['password'] ?? '' ?>",
                     credentialId: credentialId,
                     publicKeyBytes: publicKeyBytes,
-                    username: "<?= $username ?>",
                 })
             })
             const data = await response.json()
@@ -220,6 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $message = '';
         $message_class = '';
+        $username = $_POST['username'] ?? '' ;
+        $password = $_POST['password'] ?? '' ;
+        $confirm_password = $_POST['confirm_password'];
 
         // Regex patterns
         $username_pattern = '/^[\w!@#$%^&*()\-+=]{3,16}$/'; // Alphanumeric, underscores, and special characters, 3-16 characters
@@ -253,9 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ?>
                     main()
-                <?php }
+                    <?php
+                }
             }
-        } ?>
+        }
+        ?>
 
     </script>
 
