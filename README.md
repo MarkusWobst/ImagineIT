@@ -45,7 +45,7 @@ The project was never fully completed and development paused during the implemen
 - Paul
 - Mijo
 - Tim
-- Me
+- Markus
 - Supporters / Trainers: Merlin, Friedrich
 
 ---
@@ -95,6 +95,6 @@ Das Projekt wurde nicht vollständig abgeschlossen, die Entwicklung wurde währe
 - Paul
 - Mijo
 - Tim
-- Ich
+- Markus
 - Unterstützer / Trainer: Merlin, Friedrich
 
